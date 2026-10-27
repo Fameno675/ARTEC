@@ -1,0 +1,11 @@
+{% extends "layouts/dashboard.html" %}
+{% block title %}Nouvelle réclamation{% endblock %}
+{% block content %}
+<nav class="ar-breadcrumb" aria-label="Fil d’Ariane"><a href="{% url 'operator:complaint_list' %}">Réclamations</a> <span aria-hidden="true">/</span> Nouvelle</nav>
+<header class="ar-page-header"><div><h1>Nouvelle réclamation</h1><p class="ar-lead">Décrivez factuellement le comportement présumé anormal. Vous pourrez ajouter des pièces justificatives après le dépôt.</p></div></header>
+{% include "partials/allegation.html" %}
+<form method="post" novalidate class="ar-card" style="max-width:760px"><div class="ar-card-body">{% csrf_token %}
+  {% include "partials/form_fields.html" %}
+  <div class="d-flex gap-2"><button class="btn btn-primary" type="submit" data-loading-text="Dépôt en cours…" data-confirm="Déposer cette réclamation auprès de l’ARTEC ? Elle ne pourra plus être modifiée, mais vous pourrez ajouter des pièces et des messages."><i class="bi bi-send me-1" aria-hidden="true"></i>Déposer la réclamation</button><a class="btn btn-link" href="{% url 'operator:complaint_list' %}">Annuler</a></div>
+</div></form>
+{% endblock %}

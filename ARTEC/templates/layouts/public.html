@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% load static %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/artec-public.css' %}">{% endblock %}
+{% block shell %}
+{% include "partials/navbar_public.html" %}
+{% block hero %}{% endblock %}
+<main id="contenu" tabindex="-1" class="{% block main_class %}container py-4{% endblock %}">
+  {% include "partials/messages.html" %}
+  {% block content %}{% endblock %}
+</main>
+{% include "partials/footer.html" %}
+{% endblock %}

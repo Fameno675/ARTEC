@@ -1,0 +1,102 @@
+/* ARTEC — styles globaux : jetons, typographie, mise en page. Aucun style de page ici. */
+:root {
+  --ar-ink: #0b1f3a;
+  --ar-text: #1d2b3f;
+  --ar-muted: #4a5a6e;
+  --ar-primary: #0f4c81;
+  --ar-primary-dark: #0a3860;
+  --ar-primary-soft: #e6eff8;
+  --ar-accent: #0b6e78;
+  --ar-accent-soft: #e0f2f3;
+  --ar-bg: #f4f6fa;
+  --ar-card: #ffffff;
+  --ar-border: #d5dce7;
+  --ar-success: #17724a;  --ar-success-soft: #e3f4ec;
+  --ar-warning: #7a4d00;  --ar-warning-soft: #fff3d1;
+  --ar-danger: #b0261b;   --ar-danger-soft: #fdeae8;
+  --ar-info: #0f4c81;     --ar-info-soft: #e6eff8;
+  --ar-neutral: #4a5a6e;  --ar-neutral-soft: #e9edf3;
+  /* Séries de graphiques : volontairement distinctes des couleurs commerciales des opérateurs */
+  --ar-series-0: #1f5fbf; --ar-series-1: #0b7f70; --ar-series-2: #7647c9; --ar-series-3: #8a5a00;
+  --ar-neg: #b0261b; --ar-neu: #8a6d00; --ar-pos: #17724a;
+  --ar-radius: 14px;
+  --ar-radius-sm: 8px;
+  --ar-shadow: 0 1px 2px rgba(11, 31, 58, .06), 0 6px 20px rgba(11, 31, 58, .06);
+  --ar-font: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --ar-sidebar-w: 268px;
+
+  /* Surcharge des variables Bootstrap */
+  --bs-body-font-family: var(--ar-font);
+  --bs-body-color: var(--ar-text);
+  --bs-body-bg: var(--ar-bg);
+  --bs-primary: var(--ar-primary);
+  --bs-primary-rgb: 15, 76, 129;
+  --bs-link-color: var(--ar-primary);
+  --bs-link-color-rgb: 15, 76, 129;
+  --bs-link-hover-color: var(--ar-primary-dark);
+  --bs-border-color: var(--ar-border);
+  --bs-border-radius: var(--ar-radius-sm);
+  --bs-secondary-color: var(--ar-muted);
+}
+
+body { font-size: 1rem; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, h5, .ar-display { font-weight: 650; letter-spacing: -.01em; color: var(--ar-ink); }
+h1, .h1 { font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.25rem); }
+h2, .h2 { font-size: clamp(1.3rem, 1.1rem + .8vw, 1.65rem); }
+h3, .h3 { font-size: 1.2rem; }
+.text-muted, .text-secondary { color: var(--ar-muted) !important; }
+a { text-underline-offset: 3px; }
+code { color: var(--ar-primary-dark); background: var(--ar-primary-soft); padding: .1em .35em; border-radius: 4px; }
+
+/* Accessibilité */
+.ar-skip-link { position: absolute; left: .75rem; top: -4rem; z-index: 2000; background: var(--ar-ink); color: #fff;
+  padding: .6rem 1rem; border-radius: var(--ar-radius-sm); transition: top .15s; }
+.ar-skip-link:focus { top: .75rem; color: #fff; }
+:focus-visible { outline: 3px solid #1f5fbf; outline-offset: 2px; border-radius: 4px; }
+/* Surfaces sombres : anneau de focus clair (contraste 16:1 sur le marine) */
+.ar-navbar :focus-visible, .ar-topbar :focus-visible, .ar-footer :focus-visible, .ar-hero :focus-visible { outline-color: #ffffff; }
+.btn:focus-visible, .form-control:focus, .form-select:focus { box-shadow: 0 0 0 .2rem rgba(31, 95, 191, .35); outline: none; }
+.hp-field { position: absolute !important; left: -9999px !important; width: 1px; height: 1px; overflow: hidden; }
+
+/* Boutons */
+.btn { font-weight: 600; border-radius: 10px; padding: .55rem 1.1rem; }
+.btn-primary { --bs-btn-bg: var(--ar-primary); --bs-btn-border-color: var(--ar-primary); --bs-btn-hover-bg: var(--ar-primary-dark);
+  --bs-btn-hover-border-color: var(--ar-primary-dark); --bs-btn-active-bg: var(--ar-primary-dark); --bs-btn-disabled-bg: var(--ar-primary); }
+.btn-outline-primary { --bs-btn-color: var(--ar-primary); --bs-btn-border-color: var(--ar-primary); --bs-btn-hover-bg: var(--ar-primary);
+  --bs-btn-hover-border-color: var(--ar-primary); --bs-btn-active-bg: var(--ar-primary); }
+.btn-danger { --bs-btn-bg: var(--ar-danger); --bs-btn-border-color: var(--ar-danger); --bs-btn-hover-bg: #8f1f16; --bs-btn-hover-border-color: #8f1f16; }
+.btn-success { --bs-btn-bg: var(--ar-success); --bs-btn-border-color: var(--ar-success); --bs-btn-hover-bg: #125c3b; --bs-btn-hover-border-color: #125c3b; }
+.btn-sm { padding: .3rem .7rem; border-radius: 8px; }
+.btn .spinner-border { width: 1em; height: 1em; border-width: .15em; }
+
+/* Formulaires */
+.form-label { font-weight: 600; color: var(--ar-ink); margin-bottom: .35rem; }
+.form-control, .form-select { border-color: #6b7c92; padding: .6rem .85rem; border-radius: 10px; }
+.form-text { color: var(--ar-muted); }
+.invalid-feedback.d-block, .ar-field-error { color: var(--ar-danger); font-size: .9rem; margin-top: .3rem; }
+.ar-required::after { content: " *"; color: var(--ar-danger); }
+
+/* Navigation publique */
+.ar-navbar { background: var(--ar-ink); border-bottom: 3px solid var(--ar-accent); }
+.ar-navbar .navbar-brand { color: #fff; font-weight: 700; letter-spacing: .02em; display: flex; align-items: center; gap: .6rem; }
+.ar-navbar .nav-link { color: #d6e2f2; font-weight: 500; padding: .6rem .9rem; border-radius: 8px; }
+.ar-navbar .nav-link:hover, .ar-navbar .nav-link.active { color: #fff; background: rgba(255, 255, 255, .12); }
+.ar-brand-mark { width: 34px; height: 34px; }
+.ar-navbar .navbar-toggler { border-color: rgba(255, 255, 255, .5); }
+.ar-navbar .navbar-toggler-icon { filter: invert(1); }
+
+/* Pied de page */
+.ar-footer { background: var(--ar-ink); color: #c9d6e8; margin-top: 4rem; }
+.ar-footer a { color: #fff; }
+.ar-footer small, .ar-footer p { color: #c9d6e8; }
+
+/* En-tête de page */
+.ar-page-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+.ar-page-header h1 { margin: 0; }
+.ar-page-header .ar-lead { color: var(--ar-muted); margin: .25rem 0 0; max-width: 62ch; }
+.ar-breadcrumb { font-size: .9rem; margin-bottom: .5rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}
+@media print { .ar-navbar, .ar-sidebar, .ar-footer, .btn, .ar-filter-bar { display: none !important; } body { background: #fff; } }

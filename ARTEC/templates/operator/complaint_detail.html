@@ -1,0 +1,33 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}{{ complaint.reference }}{% endblock %}
+{% block content %}
+<nav class="ar-breadcrumb" aria-label="Fil d’Ariane"><a href="{% url 'operator:complaint_list' %}">Réclamations</a> <span aria-hidden="true">/</span> {{ complaint.reference }}</nav>
+<header class="ar-page-header"><div><h1 class="d-flex flex-wrap align-items-center gap-3">{{ complaint.reference }} {% status_badge complaint.status complaint.get_status_display %}</h1><p class="ar-lead">{{ complaint.subject }}</p></div></header>
+{% include "partials/allegation.html" %}
+{% if complaint.status == 'info_requested' %}<div class="ar-notice is-warning" role="alert"><i class="bi bi-question-circle" aria-hidden="true"></i><div><strong>L’ARTEC demande des informations complémentaires.</strong> Répondez par un message ou ajoutez une pièce ci-dessous.</div></div>{% endif %}
+<div class="row g-3">
+  <div class="col-lg-7 ar-section-gap">
+    <section class="ar-card"><div class="ar-card-head"><h2>Faits allégués</h2></div><div class="ar-card-body">
+      <dl class="ar-detail-grid ar-kv"><div><dt>Plaignant</dt><dd>{{ complaint.complainant_operator }}</dd></div><div><dt>Opérateur concerné</dt><dd>{{ complaint.target_operator }}</dd></div><div><dt>Déposée le</dt><dd>{{ complaint.created_at|date:"d/m/Y H:i" }}</dd></div>
+      {% if complaint.observed_from or complaint.observed_to %}<div><dt>Période observée</dt><dd>{{ complaint.observed_from|default:"?" }} → {{ complaint.observed_to|default:"?" }}</dd></div>{% endif %}</dl>
+      <pre class="ar-pre">{{ complaint.description }}</pre></div></section>
+    <section class="ar-card" aria-labelledby="hist"><div class="ar-card-head"><h2 id="hist">Historique du traitement</h2></div><div class="ar-card-body">
+      <ol class="ar-timeline">{% for e in events %}<li><div class="fw-semibold">{{ e.get_event_type_display }}{% if e.to_status %} → {{ e.to_status }}{% endif %}</div>{% if e.note %}<div>{{ e.note }}</div>{% endif %}<time datetime="{{ e.created_at|date:'c' }}">{{ e.created_at|date:"d/m/Y H:i" }}</time></li>{% endfor %}</ol></div></section>
+  </div>
+  <div class="col-lg-5 ar-section-gap">
+    <section class="ar-card" aria-labelledby="pj"><div class="ar-card-head"><h2 id="pj">Pièces justificatives</h2></div><div class="ar-card-body">
+      {% if attachments %}<ul class="list-unstyled">{% for a in attachments %}<li class="mb-2"><i class="bi bi-paperclip me-1" aria-hidden="true"></i><a href="{% url 'operator:attachment_download' complaint.reference a.pk %}">{{ a.original_filename }}</a> <span class="small text-muted">({{ a.size|filesizeformat }})</span></li>{% endfor %}</ul>
+      {% else %}<p class="text-muted small">Aucune pièce jointe pour le moment.</p>{% endif %}
+      {% if complaint.status != 'closed' and complaint.status != 'rejected' %}
+      <form method="post" action="{% url 'operator:complaint_attach' complaint.reference %}" enctype="multipart/form-data">{% csrf_token %}
+        <label class="form-label" for="{{ attach_form.file.id_for_label }}">Ajouter une pièce</label>{{ attach_form.file|bs }}<div class="form-text">PDF, PNG, JPG, CSV, TXT ou XLSX · 10 Mo maximum.</div>
+        <button class="btn btn-outline-primary btn-sm mt-2" type="submit" data-loading-text="Envoi…"><i class="bi bi-upload me-1" aria-hidden="true"></i>Ajouter</button></form>{% endif %}</div></section>
+    {% if complaint.status != 'closed' and complaint.status != 'rejected' %}
+    <section class="ar-card" aria-labelledby="msg"><div class="ar-card-head"><h2 id="msg">Envoyer un message</h2></div><div class="ar-card-body">
+      <form method="post" action="{% url 'operator:complaint_reply' complaint.reference %}">{% csrf_token %}
+        <label class="visually-hidden" for="{{ message_form.note.id_for_label }}">Message</label>{{ message_form.note|bs }}
+        <button class="btn btn-primary btn-sm mt-2" type="submit" data-loading-text="Envoi…"><i class="bi bi-send me-1" aria-hidden="true"></i>Envoyer</button></form></div></section>
+    {% else %}<div class="ar-notice is-info" role="note"><i class="bi bi-lock" aria-hidden="true"></i><div>Cette réclamation est clôturée : il n’est plus possible d’ajouter de message ni de pièce.</div></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

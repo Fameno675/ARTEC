@@ -1,0 +1,2 @@
+# Les dependances du moteur ML sont dans ../requirements.txt (un seul environnement pour tout le projet).
+-r ../requirements.txt

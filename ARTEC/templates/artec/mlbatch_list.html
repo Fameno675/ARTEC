@@ -1,0 +1,17 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Analyses ML{% endblock %}
+{% block content %}
+<header class="ar-page-header"><div><h1>Analyses du moteur ML</h1><p class="ar-lead">Détection de réponses atypiques sur les avis validés. Un lot indisponible ou en échec ne bloque jamais la plateforme : les données restent intactes.</p></div></header>
+<div class="ar-notice is-info" role="note"><i class="bi bi-info-circle" aria-hidden="true"></i><div><strong>Lecture des résultats.</strong> Le <em>score d’anomalie</em> (0 à 1, plus haut = plus atypique) n’est <strong>pas une probabilité</strong> et n’est <strong>pas un score de qualité</strong>. Une alerte n’est pas une preuve d’infraction : elle doit être examinée par un agent.</div></div>
+<section class="ar-card mb-4" aria-labelledby="new"><div class="ar-card-head"><h2 id="new">Lancer une analyse</h2></div><div class="ar-card-body">
+  <form method="post" class="row g-3 align-items-end" novalidate>{% csrf_token %}
+    {% if form.non_field_errors %}<div class="col-12"><div class="ar-notice is-danger mb-0" role="alert"><i class="bi bi-x-octagon" aria-hidden="true"></i><div>{{ form.non_field_errors|join:" " }}</div></div></div>{% endif %}
+    {% for f in form.visible_fields %}<div class="col-md-4"><label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>{{ f|bs }}{% if f.errors %}<div id="{{ f.auto_id }}_err" class="ar-field-error" role="alert">{{ f.errors|join:" " }}</div>{% endif %}</div>{% endfor %}
+    <div class="col-12"><button class="btn btn-primary" type="submit" data-loading-text="Analyse en cours…" data-confirm="Lancer l’analyse sur la période choisie ? Seuls les avis validés sont envoyés au moteur, sans identifiant technique ni commentaire."><i class="bi bi-cpu me-1" aria-hidden="true"></i>Lancer l’analyse</button></div>
+  </form></div></section>
+<section class="ar-card"><div class="ar-card-head"><h2>Historique des lots</h2></div>
+{% if batches %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Lot</th><th scope="col">Période</th><th scope="col">Périmètre</th><th scope="col">Modèle</th><th scope="col">Statut</th><th scope="col" class="num">Observations</th></tr></thead><tbody>
+{% for b in batches %}<tr><td><a href="{% url 'artec:mlbatch_detail' b.pk %}"><code>{{ b.pk|stringformat:"s"|slice:":8" }}</code></a><div class="small text-muted">{{ b.submitted_at|date:"d/m/Y H:i" }}</div></td><td class="small">{{ b.period_start|date:"d/m/Y" }} → {{ b.period_end|date:"d/m/Y" }}</td><td>{{ b.operator|default:"Tous" }}</td><td class="small">{{ b.model_name|default:"—" }} {{ b.model_version }}</td><td>{% status_badge b.status b.get_status_display %}{% if b.error_code %}<div class="small text-muted">{{ b.error_code }}</div>{% endif %}</td><td class="num">{{ b.n_observations }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="ar-card-body">{% include "partials/empty.html" with icon="cpu" title="Aucune analyse lancée" text="Lancez une première analyse sur une période contenant des avis validés." %}</div>{% endif %}</section>
+{% include "partials/pagination.html" with page_obj=batches %}
+{% endblock %}

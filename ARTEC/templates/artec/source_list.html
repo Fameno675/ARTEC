@@ -1,0 +1,10 @@
+{% extends "layouts/dashboard.html" %}
+{% block title %}Sources de données{% endblock %}
+{% block content %}
+<header class="ar-page-header"><div><h1>Sources de données</h1><p class="ar-lead">Provenance, période de collecte, limites d’usage et base légale de chaque jeu de données. Aucune collecte contournant les restrictions d’une plateforme.</p></div><a class="btn btn-primary" href="{% url 'artec:source_create' %}"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nouvelle source</a></header>
+<section class="ar-card">
+{% if sources %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Nom</th><th scope="col">Type</th><th scope="col">Collecte</th><th scope="col">Limites d’usage</th><th scope="col">Autorisation</th></tr></thead><tbody>
+{% for s in sources %}<tr><th scope="row" class="fw-semibold">{{ s.name }}</th><td>{{ s.get_source_type_display }}</td><td class="small text-nowrap">{{ s.collected_from|date:"d/m/Y"|default:"?" }} → {{ s.collected_to|date:"d/m/Y"|default:"?" }}</td><td class="small">{{ s.usage_limits|truncatechars:90|default:"—" }}</td><td class="small">{{ s.legal_basis|truncatechars:90|default:"—" }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="ar-card-body">{% url 'artec:source_create' as u %}{% include "partials/empty.html" with icon="diagram-3" title="Aucune source déclarée" text="Déclarez une source avant d’importer un fichier ARTEC." cta_url=u cta_label="Déclarer une source" %}</div>{% endif %}</section>
+{% include "partials/pagination.html" with page_obj=sources %}
+{% endblock %}

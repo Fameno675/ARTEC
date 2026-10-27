@@ -1,0 +1,6 @@
+{% extends "layouts/public.html" %}
+{% block title %}Session expirée{% endblock %}
+{% block content %}
+<div class="ar-error-page"><div class="ar-error-code">403</div><h1>Votre session a expiré</h1><p class="text-muted mx-auto" style="max-width:52ch">Le formulaire n’a pas pu être vérifié (jeton de sécurité manquant ou expiré). Rechargez la page, puis recommencez. Vos données n’ont pas été enregistrées.</p>
+<button class="btn btn-primary" type="button" onclick="history.back()">Revenir au formulaire</button></div>
+{% endblock %}

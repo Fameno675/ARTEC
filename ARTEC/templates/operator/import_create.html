@@ -1,0 +1,26 @@
+{% extends "layouts/dashboard.html" %}{% load static artec_ui %}
+{% block title %}Nouvel import{% endblock %}
+{% block content %}
+<nav class="ar-breadcrumb" aria-label="Fil d’Ariane"><a href="{% url 'operator:import_list' %}">Imports</a> <span aria-hidden="true">/</span> Nouvel import</nav>
+<header class="ar-page-header"><div><h1>Nouvel import</h1><p class="ar-lead">Importez vos données au format CSV ou Excel (.xlsx). Vous pouvez importer uniquement vos propres données.</p></div>
+  <a class="btn btn-outline-primary" href="{% url 'operator:import_template' %}"><i class="bi bi-download me-1" aria-hidden="true"></i>Télécharger le modèle CSV</a></header>
+<div class="row g-4">
+  <div class="col-lg-7">
+    <form method="post" enctype="multipart/form-data" novalidate class="ar-card"><div class="ar-card-body">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="ar-notice is-danger" role="alert"><i class="bi bi-x-octagon" aria-hidden="true"></i><div>{{ form.non_field_errors|join:" " }}</div></div>{% endif %}
+      <div data-file-upload data-max-bytes="10485760" data-extensions=".csv,.xlsx" data-required-columns="collected_at" data-known-columns="import-columns">
+        <div class="ar-dropzone"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>
+          <p class="mb-2 mt-2"><strong>Glissez votre fichier ici</strong> ou choisissez-le :</p>
+          <label class="visually-hidden" for="{{ form.file.id_for_label }}">{{ form.file.label }}</label>{{ form.file|bs }}
+          <p class="small text-muted mt-2 mb-0">.csv (UTF-8) ou .xlsx · 10 Mo et 50 000 lignes au maximum</p></div>
+        {% if form.file.errors %}<div class="ar-field-error" role="alert">{{ form.file.errors|join:" " }}</div>{% endif %}
+        <div class="ar-file-preview" data-file-preview aria-live="polite"></div>
+      </div>
+      <button class="btn btn-primary mt-3" type="submit" data-loading-text="Import en cours…" data-confirm="Lancer l’import ? Le fichier sera vérifié puis enregistré dans une seule opération ; il sera conservé dans votre historique."><i class="bi bi-upload me-1" aria-hidden="true"></i>Importer</button>
+    </div></form>
+  </div>
+  <div class="col-lg-5">{% include "partials/import_help.html" with is_artec=False %}</div>
+</div>
+{% endblock %}
+{% block scripts %}{% import_columns as IC %}{{ IC|json_script:"import-columns" }}<script src="{% static 'js/file-upload.js' %}"></script>{% endblock %}

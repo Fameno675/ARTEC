@@ -1,0 +1,12 @@
+{% extends "layouts/public.html" %}
+{% block title %}Connexion{% endblock %}
+{% block content %}
+<div class="ar-login-card"><div class="ar-card"><div class="ar-card-body p-4">
+  <h1 class="h3 mb-1">Connexion</h1><p class="text-muted">Espace réservé aux opérateurs et aux agents ARTEC. Les visiteurs n’ont pas besoin de compte pour <a href="{% url 'public:survey_list' %}">donner leur avis</a>.</p>
+  <form method="post" novalidate data-loading-text="Connexion…">{% csrf_token %}
+    {% include "partials/form_fields.html" %}
+    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+    <button class="btn btn-primary w-100" type="submit"><i class="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>Se connecter</button>
+  </form>
+</div></div></div>
+{% endblock %}

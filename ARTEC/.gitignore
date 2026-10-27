@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+private_media/*
+!private_media/.gitkeep
+*.sqlite3
+.pytest_cache/
+staticfiles/
+mail et password.txt
+ml_engine/artifacts/*
+!ml_engine/artifacts/.gitkeep
+resultat.json
+.idea/
+.vscode/

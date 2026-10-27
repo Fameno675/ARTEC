@@ -1,0 +1,7 @@
+{% extends "layouts/public.html" %}
+{% block title %}Trop de réponses{% endblock %}
+{% block content %}
+<div class="ar-error-page"><div class="ar-error-code">429</div><h1>Trop de réponses depuis votre connexion</h1>
+<p class="text-muted mx-auto" style="max-width:52ch">Pour protéger la qualité des données, le nombre d’avis par heure est limité pour une même connexion. Votre avis n’a pas été enregistré : réessayez plus tard.</p>
+<a class="btn btn-primary" href="{% url 'public:home' %}">Retour à l’accueil</a></div>
+{% endblock %}

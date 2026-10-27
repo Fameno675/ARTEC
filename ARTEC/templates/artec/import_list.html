@@ -1,0 +1,12 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Imports{% endblock %}
+{% block content %}
+<header class="ar-page-header"><div><h1>Imports</h1><p class="ar-lead">Tous les fichiers importés (ARTEC et opérateurs), avec leur état et leur taux de rejet.</p></div>
+  <div class="d-flex gap-2"><a class="btn btn-outline-primary" href="{% url 'artec:import_template' %}"><i class="bi bi-download me-1" aria-hidden="true"></i>Modèle CSV</a><a class="btn btn-primary" href="{% url 'artec:import_create' %}"><i class="bi bi-upload me-1" aria-hidden="true"></i>Nouvel import</a></div></header>
+<form class="ar-filter-bar" method="get" data-no-loading><div class="ar-filter"><label for="is">Statut</label><select id="is" name="status" class="form-select"><option value="">Tous</option><option value="committed" {% if filters.status == 'committed' %}selected{% endif %}>Enregistré</option><option value="failed" {% if filters.status == 'failed' %}selected{% endif %}>Échec</option></select></div><div><button class="btn btn-primary">Filtrer</button></div></form>
+<section class="ar-card">
+{% if batches %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Fichier</th><th scope="col">Source</th><th scope="col">Périmètre</th><th scope="col">Par</th><th scope="col">Statut</th><th scope="col" class="num">Lignes</th><th scope="col" class="num">Rejetées</th></tr></thead><tbody>
+{% for b in batches %}<tr><td><a href="{% url 'artec:import_detail' b.pk %}">{{ b.original_filename }}</a><div class="small text-muted">{{ b.created_at|date:"d/m/Y H:i" }}</div></td><td>{{ b.data_source }}</td><td>{{ b.operator|default:"Tous opérateurs" }}</td><td class="small">{{ b.uploaded_by.email|default:"—" }}</td><td>{% status_badge b.status b.get_status_display %}</td><td class="num">{{ b.total_rows }}</td><td class="num">{{ b.rejected_rows }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="ar-card-body">{% url 'artec:import_create' as u %}{% include "partials/empty.html" with icon="file-earmark-arrow-up" title="Aucun import" text="Importez un fichier CSV ou Excel avec sa source de données." cta_url=u cta_label="Nouvel import" %}</div>{% endif %}</section>
+{% include "partials/pagination.html" with page_obj=batches %}
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Lot ML {{ batch.pk|stringformat:"s"|slice:":8" }}{% endblock %}
+{% block content %}{% criteria_map as CM %}
+<nav class="ar-breadcrumb" aria-label="Fil d’Ariane"><a href="{% url 'artec:mlbatch_list' %}">Analyses ML</a> <span aria-hidden="true">/</span> {{ batch.pk|stringformat:"s"|slice:":8" }}</nav>
+<header class="ar-page-header"><div><h1 class="d-flex flex-wrap align-items-center gap-3">Lot d’analyse {% status_badge batch.status batch.get_status_display %}</h1>
+  <p class="ar-lead">{{ batch.period_start|date:"d/m/Y" }} → {{ batch.period_end|date:"d/m/Y" }} · {{ batch.operator|default:"tous opérateurs" }} · {{ batch.n_observations }} observation(s) · modèle {{ batch.model_name|default:"—" }} {{ batch.model_version }} · contrat v{{ batch.contract_version }}</p></div></header>
+
+{% if batch.awaiting_or_failed %}<div class="ar-notice is-warning" role="alert"><i class="bi bi-plug" aria-hidden="true"></i><div><strong>Analyse en attente ou en échec.</strong> {{ batch.error_code }}{% if batch.error_message %} — {{ batch.error_message }}{% endif %}<br>Les données sont intactes. <a href="{% url 'artec:mlbatch_list' %}">Relancer une analyse</a> quand le moteur est disponible.</div></div>
+{% elif batch.status == 'partial' %}<div class="ar-notice is-warning" role="alert"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div><strong>Résultat partiel :</strong> {{ batch.error_message }}. Seules les règles explicables ont été appliquées à certaines observations.</div></div>{% endif %}
+
+<div class="ar-notice is-info" role="note"><i class="bi bi-diagram-3" aria-hidden="true"></i><div>
+  <div class="ar-flow mb-2" aria-label="Étapes de traitement d’une alerte"><span class="ar-flow-step is-current"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>1. Anomalie détectée (machine)</span><i class="bi bi-chevron-right" aria-hidden="true"></i><span class="ar-flow-step"><i class="bi bi-hourglass-split" aria-hidden="true"></i>2. Vérification en cours</span><i class="bi bi-chevron-right" aria-hidden="true"></i><span class="ar-flow-step"><i class="bi bi-person-check" aria-hidden="true"></i>3. Décision humaine</span></div>
+  Le <em>score d’anomalie</em> (0 à 1, plus haut = plus atypique) <strong>n’est pas une probabilité</strong>. Une alerte n’est <strong>pas une preuve</strong> d’infraction.</div></div>
+
+<section class="ar-card" aria-labelledby="preds"><div class="ar-card-head"><h2 id="preds">Observations analysées</h2>
+  <div class="d-flex gap-2"><a class="btn btn-sm {% if request.GET.anomalies == '1' %}btn-outline-primary{% else %}btn-primary{% endif %}" href="?">Toutes</a><a class="btn btn-sm {% if request.GET.anomalies == '1' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?anomalies=1">Anomalies seulement</a></div></div>
+{% if predictions %}<div class="ar-table-wrap"><table class="ar-table"><caption>Triées par score d’anomalie décroissant. Ouvrez « Observations justificatives » pour voir les notes de l’avis.</caption><thead><tr><th scope="col">Avis</th><th scope="col">Signalement</th><th scope="col">Score d’anomalie</th><th scope="col">Raisons</th><th scope="col">Examen humain</th></tr></thead><tbody>
+{% for p in predictions %}<tr>
+  <td><code>{{ p.submission_id|stringformat:"s"|slice:":8" }}</code><div class="small">{{ p.submission.operator }}</div><div class="small text-muted">{{ p.submission.collected_at|date:"d/m/Y" }}</div>
+    <details class="mt-2"><summary class="small">Observations justificatives</summary>
+      <ul class="small mb-0 mt-1 ps-3">{% for r in p.submission.ratings.all %}<li>{{ CM|get_item:r.criterion.code|get_item:"label"|default:r.criterion.code }} : <strong>{{ r.score }}/10</strong></li>{% empty %}<li>Aucune note.</li>{% endfor %}</ul>
+      {% if p.submission.validation_reasons %}<div class="small text-muted mt-1">Contrôle : {% for c in p.submission.validation_reasons %}{{ c|reason_label }}{% if not forloop.last %} ; {% endif %}{% endfor %}</div>{% endif %}</details></td>
+  <td>{% if p.is_anomaly %}<span class="ar-badge is-warning"><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>Atypique</span>{% elif p.is_anomaly is None %}<span class="ar-badge is-neutral">Non évalué</span>{% else %}<span class="ar-badge is-success"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Dans la norme</span>{% endif %}</td>
+  <td>{% if p.anomaly_score is not None %}<span class="ar-score-meter" aria-hidden="true"><span style="width:{% widthratio p.anomaly_score 1 100 %}%"></span></span> <strong>{{ p.anomaly_score|floatformat:2 }}</strong><div class="small text-muted">ni probabilité ni qualité</div>{% else %}<span class="text-muted">— <span class="small">(règles seules)</span></span>{% endif %}</td>
+  <td><ul class="ar-reasons">{% for r in p.reasons %}<li>{{ r.message }}{% if r.feature %} <span class="text-muted">({{ CM|get_item:r.feature|get_item:"label"|default:r.feature }})</span>{% endif %}</li>{% empty %}<li class="text-muted">—</li>{% endfor %}</ul></td>
+  <td style="min-width:230px">{% status_badge p.review_status p.get_review_status_display %}
+    {% if p.is_anomaly %}<form method="post" action="{% url 'artec:prediction_review' p.pk %}" class="mt-2">{% csrf_token %}
+      <label class="visually-hidden" for="oc-{{ p.pk }}">Résultat de l’examen</label><select id="oc-{{ p.pk }}" name="outcome" class="form-select form-select-sm mb-1">{% for v, l in review_form.fields.outcome.choices %}<option value="{{ v }}" {% if v == p.review_status %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+      <label class="visually-hidden" for="nt-{{ p.pk }}">Motif de l’examen</label><textarea id="nt-{{ p.pk }}" name="notes" rows="2" class="form-control form-control-sm mb-1" placeholder="Motif de l’examen (vérifications effectuées)"></textarea>
+      <button class="btn btn-sm btn-outline-primary" type="submit" data-confirm="Enregistrer cet examen humain ? Il est consigné avec votre identité et n’entraîne aucune sanction automatique.">Enregistrer l’examen</button></form>{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="ar-card-body">{% include "partials/empty.html" with icon="cpu" title="Aucune observation à afficher" text="Ce lot ne contient pas de résultat, ou aucune anomalie n’a été signalée avec ce filtre." %}</div>{% endif %}</section>
+{% include "partials/pagination.html" with page_obj=predictions %}
+{% endblock %}

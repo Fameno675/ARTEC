@@ -1,0 +1,58 @@
+{% extends "layouts/public.html" %}{% load static artec_ui %}
+{% block title %}Qualité des services télécoms à Madagascar{% endblock %}
+{% block main_class %}{% endblock %}
+{% block hero %}
+<section class="ar-hero">
+  <div class="container">
+    <p class="ar-eyebrow mb-2">Autorité de régulation · Madagascar</p>
+    <h1>La qualité de vos services mobiles, mesurée par vos avis.</h1>
+    <p class="mt-3">ARTEC collecte, contrôle et analyse les avis des usagers sur l’internet mobile, les appels, les SMS, la tarification, le mobile money et le service client des opérateurs.</p>
+    <div class="d-flex flex-wrap gap-2 mt-4">
+      <a class="btn btn-light btn-lg" href="{% url 'public:survey_list' %}"><i class="bi bi-chat-square-heart me-2" aria-hidden="true"></i>Donner mon avis</a>
+      <a class="btn btn-outline-light btn-lg" href="{% url 'public:results' %}"><i class="bi bi-bar-chart-line me-2" aria-hidden="true"></i>Consulter les résultats</a>
+    </div>
+    <p class="mt-3 mb-0 small">Sans compte · environ 2 minutes · aucune donnée personnelle demandée</p>
+  </div>
+</section>
+{% endblock %}
+{% block content %}{% operators_map as OM %}
+<div class="container">
+<section class="ar-section pb-2" aria-labelledby="mission">
+  <h2 id="mission" class="ar-section-title">Une mission de transparence</h2>
+  <p class="text-muted ar-prose">Les décisions de régulation reposent sur des données fiables. ARTEC rassemble les perceptions des usagers, vérifie leur cohérence et les présente avec leurs limites.</p>
+  <div class="row g-3 mt-1">
+    <div class="col-md-4"><div class="ar-card ar-feature"><span class="ar-icon-chip"><i class="bi bi-chat-square-text" aria-hidden="true"></i></span><h3>Collecter</h3><p>Chacun peut évaluer un ou plusieurs opérateurs, à tout moment, sans créer de compte.</p></div></div>
+    <div class="col-md-4"><div class="ar-card ar-feature"><span class="ar-icon-chip is-accent"><i class="bi bi-patch-check" aria-hidden="true"></i></span><h3>Contrôler</h3><p>Les données sont validées : doublons, valeurs incohérentes et réponses atypiques sont examinés par des agents.</p></div></div>
+    <div class="col-md-4"><div class="ar-card ar-feature"><span class="ar-icon-chip is-warning"><i class="bi bi-graph-up" aria-hidden="true"></i></span><h3>Analyser</h3><p>Des indicateurs présentés avec la période, le nombre d’avis et leurs limites statistiques.</p></div></div>
+  </div>
+</section>
+
+<section class="ar-section pb-2" aria-labelledby="comment">
+  <h2 id="comment" class="ar-section-title mb-3">Comment donner votre avis</h2>
+  <ol class="ar-steps">
+    <li><strong>Choisissez l’opérateur</strong><br><span class="text-muted">Orange, Yas ou Airtel Madagascar.</span></li>
+    <li><strong>Notez de 0 à 10</strong><br><span class="text-muted">Ignorez les critères que vous ne pouvez pas évaluer.</span></li>
+    <li><strong>Envoyez</strong><br><span class="text-muted">Vous pouvez revenir évaluer un autre opérateur.</span></li>
+  </ol>
+</section>
+
+<section class="ar-section ar-op-showcase" id="operateurs" aria-labelledby="ops">
+  <h2 id="ops" class="ar-section-title">Opérateurs couverts</h2>
+  <p class="text-muted">Les trois opérateurs mobiles suivis par la plateforme.</p>
+  <div class="row g-3">
+    {% for o in operators %}{% with idx=OM|get_item:o.code|get_item:"index" %}
+    <div class="col-md-4"><div class="ar-card">
+      <div class="d-flex align-items-center gap-3"><span class="ar-monogram s{{ idx|default:0 }}" aria-hidden="true">{{ o.name|initials }}</span><h3 class="h5 mb-0">{{ o.name }}</h3></div>
+      <div class="d-flex flex-wrap gap-2 mt-auto">
+        <a class="btn btn-primary btn-sm" href="{% url 'public:survey_list' %}?operator={{ o.code }}">Évaluer</a>
+        <a class="btn btn-outline-primary btn-sm" href="{% url 'public:results' %}?operator={{ o.code }}">Voir les résultats</a>
+      </div>
+    </div></div>
+    {% endwith %}{% empty %}
+    <div class="col-12">{% include "partials/empty.html" with icon="building" title="Aucun opérateur actif" text="La liste des opérateurs sera disponible prochainement." %}</div>
+    {% endfor %}
+  </div>
+  <p class="ar-disclaimer mt-3">Les couleurs et monogrammes sont propres à ARTEC et n’indiquent aucune affiliation avec les opérateurs.</p>
+</section>
+</div>
+{% endblock %}

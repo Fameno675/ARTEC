@@ -1,0 +1,21 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Avis collectés{% endblock %}
+{% block content %}
+<header class="ar-page-header"><div><h1>Avis collectés</h1><p class="ar-lead">Contrôle des avis : les avis « à examiner » ne comptent dans les indicateurs qu’après validation.</p></div></header>
+<form class="ar-filter-bar" method="get" data-no-loading>
+  <div class="ar-filter"><label for="fo">Opérateur</label><select id="fo" name="operator" class="form-select"><option value="">Tous</option>{% for o in operators %}<option value="{{ o.code }}" {% if filters.operator == o.code %}selected{% endif %}>{{ o.name }}</option>{% endfor %}</select></div>
+  <div class="ar-filter"><label for="fs">Statut</label><select id="fs" name="status" class="form-select"><option value="">Tous</option>{% for v, l in statuses %}<option value="{{ v }}" {% if filters.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div class="ar-filter"><label for="fr">Source</label><select id="fr" name="source" class="form-select"><option value="">Toutes</option>{% for v, l in sources %}<option value="{{ v }}" {% if filters.source == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div><button class="btn btn-primary"><i class="bi bi-funnel me-1" aria-hidden="true"></i>Filtrer</button> <a class="btn btn-link" href="{% url 'artec:feedback_list' %}">Réinitialiser</a></div>
+</form>
+<section class="ar-card">
+{% if submissions %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Collecté le</th><th scope="col">Opérateur</th><th scope="col">Source</th><th scope="col">Statut</th><th scope="col">Motifs</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>
+{% for s in submissions %}<tr><td>{{ s.collected_at|date:"d/m/Y" }}</td><td>{{ s.operator }}</td><td>{{ s.get_source_display }}</td><td>{% status_badge s.validation_status s.get_validation_status_display %}</td>
+  <td><ul class="ar-reasons">{% for r in s.validation_reasons %}<li>{{ r|reason_label }}</li>{% empty %}<li class="text-muted">—</li>{% endfor %}</ul></td>
+  <td class="text-nowrap">{% if s.validation_status == 'to_review' %}<form method="post" action="{% url 'artec:feedback_validate' s.pk %}" class="d-inline-flex gap-1">{% csrf_token %}
+    <button class="btn btn-sm btn-success" name="decision" value="accept" data-confirm="Accepter cet avis ? Il comptera désormais dans les indicateurs.">Accepter</button>
+    <button class="btn btn-sm btn-outline-danger" name="decision" value="reject" data-confirm="Rejeter cet avis ? Il ne comptera pas dans les indicateurs.">Rejeter</button></form>{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="ar-card-body">{% include "partials/empty.html" with icon="chat-square-dots" title="Aucun avis ne correspond" text="Modifiez les filtres ou attendez de nouveaux avis." %}</div>{% endif %}
+</section>
+{% include "partials/pagination.html" with page_obj=submissions %}
+{% endblock %}

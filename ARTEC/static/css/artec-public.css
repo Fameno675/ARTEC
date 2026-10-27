@@ -1,0 +1,26 @@
+/* ARTEC — pages publiques */
+.ar-hero { background: radial-gradient(1200px 400px at 85% -10%, rgba(11, 110, 120, .35), transparent 60%), linear-gradient(135deg, #0b1f3a 0%, #0f3a66 100%);
+  color: #fff; padding: clamp(2.5rem, 6vw, 5rem) 0; }
+.ar-hero h1 { color: #fff; font-size: clamp(1.9rem, 1.2rem + 3vw, 3.2rem); max-width: 18ch; }
+.ar-hero p { color: #d6e2f2; font-size: 1.1rem; max-width: 56ch; }
+.ar-hero .btn-light { color: var(--ar-primary-dark); }
+.ar-hero .btn-outline-light:hover { color: var(--ar-ink); }
+.ar-eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: .78rem; font-weight: 700; color: #9fd8dc; }
+.ar-section { padding: 3rem 0; }
+.ar-section-title { margin-bottom: .4rem; }
+.ar-feature { padding: 1.4rem; height: 100%; }
+.ar-feature h3 { font-size: 1.1rem; margin: .8rem 0 .4rem; }
+.ar-feature p { color: var(--ar-muted); margin: 0; }
+.ar-steps { counter-reset: step; list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.ar-steps li { counter-increment: step; background: #fff; border: 1px solid var(--ar-border); border-radius: var(--ar-radius); padding: 1.2rem; position: relative; }
+.ar-steps li::before { content: counter(step); display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--ar-primary); color: #fff; font-weight: 700; margin-bottom: .6rem; }
+.ar-op-showcase .ar-card { padding: 1.3rem; height: 100%; display: flex; flex-direction: column; gap: .8rem; }
+.ar-disclaimer { font-size: .88rem; color: var(--ar-muted); }
+.ar-form-sticky { position: sticky; top: 0; z-index: 20; background: rgba(244, 246, 250, .96); backdrop-filter: blur(4px); padding: .75rem 0; border-bottom: 1px solid var(--ar-border); margin-bottom: 1.25rem; }
+.ar-thanks-icon { font-size: 4rem; color: var(--ar-success); }
+.ar-prose { max-width: 72ch; }
+.ar-prose h2 { margin-top: 2rem; }
+.ar-prose li { margin-bottom: .35rem; }
+.ar-login-card { max-width: 440px; margin: 3rem auto; }
+.ar-error-page { text-align: center; padding: 4rem 1rem; }
+.ar-error-page .ar-error-code { font-size: 5rem; font-weight: 800; color: var(--ar-primary); line-height: 1; }

@@ -1,0 +1,44 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Recommandations{% endblock %}
+{% block content %}
+<header class="ar-page-header"><div><h1>Recommandations réglementaires</h1>
+  <p class="ar-lead">Situation des opérateurs sur les {{ reco.window_days }} derniers jours ({{ reco.start|date:"d/m/Y" }} → {{ reco.end|date:"d/m/Y" }}), recalculée à chaque consultation à partir des avis reçus.</p></div>
+  <nav class="btn-group" aria-label="Fenêtre d’analyse">{% for w in windows %}<a class="btn btn-sm {% if w == reco.window_days %}btn-primary{% else %}btn-outline-primary{% endif %}" href="?jours={{ w }}"{% if w == reco.window_days %} aria-current="true"{% endif %}>{{ w }} jours</a>{% endfor %}</nav></header>
+
+<div class="ar-notice is-info" role="note"><i class="bi bi-info-circle" aria-hidden="true"></i><div><strong>Aide à la décision, pas une sanction.</strong> Ces recommandations résument la perception déclarée par les répondants. Elles ne prouvent aucune infraction et ne déclenchent <strong>aucune sanction automatique</strong> : toute décision est prise et consignée par un agent ARTEC (voir <a href="{% url 'artec:complaint_list' %}">Réclamations</a>). Les avis dont une anomalie a été <em>confirmée</em> par un agent sont exclus du calcul.</div></div>
+
+<div class="row g-3 mb-4">
+{% for r in reco.operators %}
+  <div class="col-12 col-xl-4"><article class="ar-card h-100" aria-labelledby="op-{{ r.operator.code }}">
+    <div class="ar-card-head"><h2 id="op-{{ r.operator.code }}">{% if r.rank %}<span class="text-muted">#{{ r.rank }}</span> {% endif %}{{ r.operator.name }}</h2>{% status_badge r.verdict r.verdict_label %}</div>
+    <div class="ar-card-body">
+      {% if r.mean is not None %}
+      <div class="d-flex align-items-baseline gap-2"><span class="display-6 fw-semibold">{{ r.mean }}</span><span class="text-muted">/ 10</span>
+        {% if r.ci95 %}<span class="small text-muted">IC 95 % : {{ r.ci95.0 }} – {{ r.ci95.1 }}</span>{% endif %}</div>
+      <div class="progress my-2" role="img" aria-label="Note moyenne {{ r.mean }} sur 10" style="height:.6rem"><div class="progress-bar" style="width: {% widthratio r.mean 10 100 %}%"></div></div>
+      {% else %}<p class="text-muted mb-2">Aucune note sur la période.</p>{% endif %}
+      <p class="mb-3">{{ r.explanation }}</p>
+      {% if r.provisional %}<div class="ar-notice is-warning" role="status"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div><strong>Résultat provisoire.</strong>{% for n in r.provisional_notes %} {{ n }}{% endfor %} <a href="{% url 'artec:mlbatch_list' %}">Analyses ML</a></div></div>{% endif %}
+      <dl class="row small mb-0">
+        <dt class="col-7 fw-normal text-muted">Avis acceptés</dt><dd class="col-5 text-end">{{ r.n_submissions }}</dd>
+        <dt class="col-7 fw-normal text-muted">Notes positives / négatives</dt><dd class="col-5 text-end">{% if r.positive_rate is not None %}{{ r.positive_rate|pct }} % / {{ r.negative_rate|pct }} %{% else %}—{% endif %}</dd>
+        <dt class="col-7 fw-normal text-muted">Plaintes reçues (période)</dt><dd class="col-5 text-end">{{ r.complaints_received }}</dd>
+        <dt class="col-7 fw-normal text-muted">Avis analysés par le ML</dt><dd class="col-5 text-end">{{ r.ml_analysed }} / {{ r.n_submissions }}</dd>
+        <dt class="col-7 fw-normal text-muted">Alertes ML non examinées</dt><dd class="col-5 text-end">{{ r.ml_flagged_unreviewed }}</dd>
+      </dl>
+    </div></article></div>
+{% empty %}<div class="col-12">{% include "partials/empty.html" with icon="building" title="Aucun opérateur actif" text="Aucun opérateur n’est actif." %}</div>
+{% endfor %}
+</div>
+
+<section class="ar-card" aria-labelledby="rules"><div class="ar-card-head"><h2 id="rules">Règles appliquées</h2></div><div class="ar-card-body small">
+  <ul class="mb-2">
+    <li><strong>Échantillon minimal :</strong> {{ reco.min_sample }} avis acceptés sur la fenêtre, sinon aucune recommandation.</li>
+    <li><strong>Félicitations :</strong> 1<sup>er</sup> du classement, note ≥ 7 et borne basse de l’intervalle de confiance supérieure à la moyenne des autres opérateurs.</li>
+    <li><strong>Avertissement :</strong> note moyenne &lt; 5,5, ou dernier du classement avec une note &lt; 6.</li>
+    <li><strong>Instruction de sanction à envisager :</strong> note moyenne &lt; 4 <em>et</em> borne haute de l’intervalle de confiance &lt; 5.</li>
+    <li>Les imports fournis par l’opérateur évalué ne sont pas comptés pour le juger.</li>
+  </ul>
+  <p class="text-muted mb-0">Limites : avis volontaires et non représentatifs ; les intervalles de confiance supposent des notes indépendantes (un même visiteur peut en donner plusieurs) et sont donc légèrement optimistes.</p>
+</div></section>
+{% endblock %}

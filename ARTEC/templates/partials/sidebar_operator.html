@@ -1,0 +1,12 @@
+{% load artec_ui %}
+<div class="w-100">
+  <p class="ar-side-title">Mon espace</p>
+  <a class="ar-side-link {% active_nav 'operator:dashboard' %}" href="{% url 'operator:dashboard' %}"><i class="bi bi-speedometer2" aria-hidden="true"></i>Tableau de bord</a>
+  <a class="ar-side-link {% active_nav 'operator:import' %}" href="{% url 'operator:import_list' %}"><i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i>Imports de données</a>
+  <a class="ar-side-link {% active_nav 'operator:complaint' 'operator:attachment' %}" href="{% url 'operator:complaint_list' %}"><i class="bi bi-flag" aria-hidden="true"></i>Réclamations</a>
+  <p class="ar-side-title">Public</p>
+  <a class="ar-side-link" href="{% url 'public:results' %}"><i class="bi bi-bar-chart-line" aria-hidden="true"></i>Résultats publics</a>
+  <a class="ar-side-link" href="{% url 'public:methodology' %}"><i class="bi bi-journal-text" aria-hidden="true"></i>Méthodologie</a>
+  <p class="ar-side-title">Compte</p>
+  <a class="ar-side-link {% active_nav 'accounts:password' %}" href="{% url 'accounts:password_change' %}"><i class="bi bi-key" aria-hidden="true"></i>Mot de passe</a>
+</div>

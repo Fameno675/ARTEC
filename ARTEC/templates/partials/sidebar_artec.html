@@ -1,0 +1,19 @@
+{% load artec_ui %}
+<div class="w-100">
+  <p class="ar-side-title">Pilotage</p>
+  <a class="ar-side-link {% active_nav 'artec:dashboard' %}" href="{% url 'artec:dashboard' %}"><i class="bi bi-speedometer2" aria-hidden="true"></i>Tableau de bord</a>
+  <a class="ar-side-link {% active_nav 'artec:feedback' %}" href="{% url 'artec:feedback_list' %}"><i class="bi bi-chat-square-text" aria-hidden="true"></i>Avis collectés</a>
+  <a class="ar-side-link {% active_nav 'artec:recommendations' %}" href="{% url 'artec:recommendations' %}"><i class="bi bi-award" aria-hidden="true"></i>Recommandations</a>
+  <a class="ar-side-link {% active_nav 'artec:mlbatch' 'artec:prediction' %}" href="{% url 'artec:mlbatch_list' %}"><i class="bi bi-cpu" aria-hidden="true"></i>Analyses ML</a>
+  <p class="ar-side-title">Instruction</p>
+  <a class="ar-side-link {% active_nav 'artec:complaint' 'artec:attachment' %}" href="{% url 'artec:complaint_list' %}"><i class="bi bi-flag" aria-hidden="true"></i>Réclamations</a>
+  <p class="ar-side-title">Données</p>
+  <a class="ar-side-link {% active_nav 'artec:import' %}" href="{% url 'artec:import_list' %}"><i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i>Imports</a>
+  <a class="ar-side-link {% active_nav 'artec:source' %}" href="{% url 'artec:source_list' %}"><i class="bi bi-diagram-3" aria-hidden="true"></i>Sources</a>
+  <a class="ar-side-link {% active_nav 'artec:survey' %}" href="{% url 'artec:survey_list' %}"><i class="bi bi-ui-checks" aria-hidden="true"></i>Sondages</a>
+  <p class="ar-side-title">Gouvernance</p>
+  <a class="ar-side-link {% active_nav 'artec:operators' %}" href="{% url 'artec:operators' %}"><i class="bi bi-building" aria-hidden="true"></i>Opérateurs</a>
+  <a class="ar-side-link {% active_nav 'artec:audit' %}" href="{% url 'artec:audit' %}"><i class="bi bi-clipboard-check" aria-hidden="true"></i>Journal d’audit</a>
+  <p class="ar-side-title">Public</p>
+  <a class="ar-side-link" href="{% url 'public:results' %}"><i class="bi bi-bar-chart-line" aria-hidden="true"></i>Résultats publics</a>
+</div>

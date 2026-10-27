@@ -1,0 +1,59 @@
+{% extends "layouts/dashboard.html" %}{% load static artec_ui %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}{% criteria_map as CM %}
+<header class="ar-page-header"><div><h1>Tableau de bord</h1><p class="ar-lead">Vue d’ensemble de la qualité perçue, des données collectées et des dossiers à instruire.</p></div></header>
+<div class="ar-notice is-info" role="note"><i class="bi bi-info-circle" aria-hidden="true"></i><div>{{ disclaimer }} Période : <strong>{{ period.start|date:"d/m/Y" }} → {{ period.end|date:"d/m/Y" }}</strong> · seuil d’échantillon : <strong>{{ min_sample }}</strong>. Les imports déclaratifs d’opérateurs sont exclus des comparaisons.</div></div>
+{% include "partials/period_filter.html" with filters=period %}
+
+{% if ml_summary.analysis_pending_or_failed %}<div class="ar-notice is-warning" role="alert"><i class="bi bi-plug" aria-hidden="true"></i><div><strong>Dernière analyse ML en attente ou en échec</strong> (statut : {{ ml_summary.latest_batch_status }}). Les données sont conservées ; <a href="{% url 'artec:mlbatch_list' %}">relancer une analyse</a>.</div></div>{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3">{% include "partials/stat.html" with label="Avis validés (période)" value=indicators|sum_by:"n_submissions" icon="chat-square-text" note="Tous opérateurs, hors imports opérateurs" %}</div>
+  <div class="col-6 col-xl-3"><a class="text-decoration-none" href="{% url 'artec:feedback_list' %}?status=to_review">{% include "partials/stat.html" with label="Avis à examiner" value=to_review_count icon="eye" chip="is-warning" note="Validation par un agent requise" %}</a></div>
+  <div class="col-6 col-xl-3"><a class="text-decoration-none" href="{% url 'artec:mlbatch_list' %}">{% include "partials/stat.html" with label="Alertes ML non examinées" value=ml_summary.anomalies_unreviewed icon="cpu" chip="is-warning" note="Atypiques, non prouvées" %}</a></div>
+  <div class="col-6 col-xl-3"><a class="text-decoration-none" href="{% url 'artec:complaint_list' %}">{% include "partials/stat.html" with label="Réclamations à traiter" value=complaints_by_status|open_complaints icon="flag" chip="is-danger" note=complaints_by_status.received|stringformat:"s"|add:" reçue(s) non examinée(s)" %}</a></div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-xl-7"><section class="ar-card h-100" aria-labelledby="g1"><div class="ar-card-head"><h2 id="g1">Qualité par opérateur et par critère</h2><span class="small text-muted">note moyenne sur 10</span></div>
+    <div class="ar-card-body">{% include "partials/chart.html" with chart="criteria-bars" src="indicators-data" title="Note moyenne par critère et par opérateur" %}</div></section></div>
+  <div class="col-xl-5"><section class="ar-card h-100" aria-labelledby="g2"><div class="ar-card-head"><h2 id="g2">Évolution des notes</h2></div>
+    <div class="ar-card-body">{% include "partials/chart.html" with chart="time-line" src="indicators-data" granularity=period.granularity title="Évolution de la note moyenne par opérateur" %}</div></section></div>
+</div>
+
+<section class="ar-card mb-3" aria-labelledby="cmp"><div class="ar-card-head"><h2 id="cmp">Comparaison : volumes et limites statistiques</h2></div>
+  <div class="ar-table-wrap"><table class="ar-table"><caption>Un opérateur sous le seuil de {{ min_sample }} avis n’est pas classé.</caption><thead><tr><th scope="col">Opérateur</th><th scope="col" class="num">Avis (n)</th><th scope="col" class="num">Note moyenne</th><th scope="col">Fiabilité</th><th scope="col">Sources</th></tr></thead><tbody>
+  {% for ind in indicators %}<tr><th scope="row">{{ ind.operator_name }}</th><td class="num">{{ ind.n_submissions }}</td><td class="num fw-semibold">{{ ind.quality_score|floatformat:2|default:"—" }}</td>
+    <td>{% if ind.sample_sufficient %}<span class="ar-badge is-success"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Échantillon suffisant</span>{% else %}<span class="ar-badge is-warning"><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>Échantillon insuffisant · non classé</span>{% endif %}</td>
+    <td class="small text-muted">{% for s, n in ind.sources.items %}{{ s }} : {{ n }}{% if not forloop.last %} · {% endif %}{% empty %}—{% endfor %}</td></tr>{% endfor %}</tbody></table></div></section>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-4"><section class="ar-card h-100" aria-labelledby="g3"><div class="ar-card-head"><h2 id="g3">Volume par source</h2></div><div class="ar-card-body">
+    {% include "partials/chart.html" with chart="bars" src="sources-data" series_cls="s1" labels='{"public_form":"Formulaire public","artec_import":"Import ARTEC","external_import":"Source externe","operator_import":"Import opérateur"}' empty_text="Aucun avis sur la période." title="Nombre d’avis par source" %}</div></section></div>
+  <div class="col-lg-4"><section class="ar-card h-100" aria-labelledby="g4"><div class="ar-card-head"><h2 id="g4">Résultats des imports</h2><a class="small" href="{% url 'artec:import_list' %}">Détails</a></div><div class="ar-card-body">
+    {% include "partials/chart.html" with chart="stacked-bar" src="import-data" parts='[{"key":"accepted_rows","label":"Acceptées","cls":"pos"},{"key":"review_rows","label":"À examiner","cls":"neu"},{"key":"rejected_rows","label":"Rejetées","cls":"neg"}]' title="Lignes importées : acceptées, à examiner, rejetées" %}
+    <p class="small text-muted mt-3 mb-0">{{ import_stats.n_batches }} import(s) · {{ import_stats.failed_batches }} échec(s) · taux de rejet <strong>{{ import_stats.rejection_rate|pct }} %</strong></p></div></section></div>
+  <div class="col-lg-4"><section class="ar-card h-100" aria-labelledby="g5"><div class="ar-card-head"><h2 id="g5">Réclamations par statut</h2></div><div class="ar-card-body">
+    {% include "partials/chart.html" with chart="bars" src="complaints-data" series_cls="s3" labels='{"received":"Reçues","under_review":"En cours d’examen","info_requested":"Informations demandées","closed":"Clôturées","rejected":"Rejetées"}' empty_text="Aucune réclamation." title="Réclamations par statut" %}</div></section></div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-lg-6"><section class="ar-card h-100" aria-labelledby="ml"><div class="ar-card-head"><h2 id="ml">Alertes du moteur ML</h2><a class="small" href="{% url 'artec:mlbatch_list' %}">Ouvrir les analyses</a></div><div class="ar-card-body">
+    <div class="ar-flow mb-3" aria-label="Étapes du traitement d’une alerte"><span class="ar-flow-step is-current"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i>Anomalie détectée</span><i class="bi bi-chevron-right text-muted" aria-hidden="true"></i><span class="ar-flow-step"><i class="bi bi-hourglass-split" aria-hidden="true"></i>Vérification humaine</span><i class="bi bi-chevron-right text-muted" aria-hidden="true"></i><span class="ar-flow-step"><i class="bi bi-person-check" aria-hidden="true"></i>Décision humaine</span></div>
+    <p class="mb-1"><strong>{{ ml_summary.anomalies_flagged }}</strong> réponse(s) atypique(s) signalée(s), dont <strong>{{ ml_summary.anomalies_unreviewed }}</strong> non examinée(s).</p>
+    <p class="small text-muted mb-0">Une alerte indique une réponse inhabituelle ; elle ne prouve ni fraude ni infraction. Aucune sanction n’est automatique.</p></div></section></div>
+  <div class="col-lg-6"><section class="ar-card h-100" aria-labelledby="rev"><div class="ar-card-head"><h2 id="rev">Derniers examens et décisions</h2></div><div class="ar-card-body">
+    {% if recent_reviews.anomaly_reviews or recent_reviews.decisions %}<ul class="list-unstyled mb-0">
+      {% for r in recent_reviews.anomaly_reviews %}<li class="mb-2"><i class="bi bi-person-check me-2" aria-hidden="true"></i>Examen d’alerte · {{ r.get_outcome_display }} <span class="text-muted small">— {{ r.reviewer.full_name|default:r.reviewer.email }}, {{ r.created_at|date:"d/m/Y H:i" }}</span></li>{% endfor %}
+      {% for d in recent_reviews.decisions %}<li class="mb-2"><i class="bi bi-hammer me-2" aria-hidden="true"></i><a href="{% url 'artec:complaint_detail' d.complaint.reference %}">{{ d.complaint.reference }}</a> · {{ d.get_decision_type_display }} <span class="text-muted small">— {{ d.decided_by.full_name|default:d.decided_by.email }}, {{ d.decided_at|date:"d/m/Y" }}</span></li>{% endfor %}</ul>
+    {% else %}{% include "partials/empty.html" with icon="clipboard-check" title="Aucun examen enregistré" text="Les examens d’alertes et les décisions motivées apparaîtront ici." %}{% endif %}</div></section></div>
+</div>
+
+<section class="ar-card" aria-labelledby="cnt"><div class="ar-card-head"><h2 id="cnt">Avis par opérateur et par période</h2></div>
+  {% if counts %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Opérateur</th><th scope="col">Période</th><th scope="col" class="num">Avis</th></tr></thead><tbody>{% for c in counts %}<tr><td>{{ c.operator }}</td><td>{{ c.period }}</td><td class="num">{{ c.n }}</td></tr>{% endfor %}</tbody></table></div>
+  {% else %}<div class="ar-card-body">{% include "partials/empty.html" with icon="bar-chart" title="Aucun avis sur la période" text="Élargissez la période ou importez des données." %}</div>{% endif %}</section>
+{% endblock %}
+{% block scripts %}
+{{ indicators|json_script:"indicators-data" }}{{ import_stats|json_script:"import-data" }}{{ complaints_by_status|json_script:"complaints-data" }}{{ indicators|merge_sources|json_script:"sources-data" }}
+{% include "partials/chart_data.html" %}
+<script src="{% static 'js/charts.js' %}"></script>{% endblock %}

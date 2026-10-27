@@ -1,0 +1,11 @@
+{% if messages %}
+<div class="ar-messages" aria-live="polite">
+{% for m in messages %}
+  <div class="alert alert-{% if m.level_tag == 'error' %}danger{% else %}{{ m.level_tag|default:'info' }}{% endif %} alert-dismissible fade show" role="{% if m.level_tag == 'error' %}alert{% else %}status{% endif %}">
+    <i class="bi bi-{% if m.level_tag == 'success' %}check-circle-fill{% elif m.level_tag == 'error' %}x-octagon-fill{% elif m.level_tag == 'warning' %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %}" aria-hidden="true"></i>
+    <div class="flex-grow-1">{{ m }}</div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer le message"></button>
+  </div>
+{% endfor %}
+</div>
+{% endif %}

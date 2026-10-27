@@ -1,0 +1,41 @@
+{% extends "layouts/dashboard.html" %}{% load static artec_ui %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}{% criteria_map as CM %}
+<header class="ar-page-header"><div><h1>{{ operator.name }}</h1><p class="ar-lead">Vos indicateurs, vos imports et vos réclamations. Seules vos propres données sont affichées.</p></div>
+  <div class="d-flex gap-2"><a class="btn btn-primary" href="{% url 'operator:import_create' %}"><i class="bi bi-upload me-1" aria-hidden="true"></i>Importer un fichier</a><a class="btn btn-outline-primary" href="{% url 'operator:complaint_create' %}"><i class="bi bi-flag me-1" aria-hidden="true"></i>Nouvelle réclamation</a></div></header>
+
+<div class="ar-notice is-info" role="note"><i class="bi bi-info-circle" aria-hidden="true"></i><div>Période : <strong>{{ period.start|default:"—" }} → {{ period.end|default:"—" }}</strong> (par {% if period.granularity == 'month' %}mois{% elif period.granularity == 'week' %}semaine{% else %}jour{% endif %}). Ces indicateurs incluent vos propres imports ; ils ne sont pas comparés aux autres opérateurs.</div></div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3">{% include "partials/stat.html" with label="Avis pris en compte" value=indicators.n_submissions icon="chat-square-text" note="Avis validés sur la période" %}</div>
+  <div class="col-6 col-xl-3">{% include "partials/stat.html" with label="Note moyenne" value=indicators.quality_score|default_if_none:"—" icon="star" chip="is-accent" note="Moyenne des notes, sur 10" %}</div>
+  <div class="col-6 col-xl-3">{% include "partials/stat.html" with label="Lignes importées" value=import_stats.total_rows icon="file-earmark-spreadsheet" note=import_stats.n_batches|stringformat:"s"|add:" import(s)" %}</div>
+  <div class="col-6 col-xl-3">{% include "partials/stat.html" with label="Taux de rejet des imports" value=import_stats.rejection_rate|pct|stringformat:"s"|add:" %" icon="shield-exclamation" chip="is-warning" note="Lignes rejetées / lignes importées" %}</div>
+</div>
+{% if not indicators.sample_sufficient %}<div class="ar-notice is-warning" role="note"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div><strong>Échantillon insuffisant</strong> (n = {{ indicators.n_submissions }} &lt; {{ indicators.min_sample }}) : lisez ces résultats comme indicatifs.</div></div>{% endif %}
+
+<div class="row g-3 mb-3">
+  <div class="col-xl-7"><section class="ar-card h-100" aria-labelledby="c1"><div class="ar-card-head"><h2 id="c1">Note moyenne par critère</h2><span class="small text-muted">avec intervalle de confiance à 95 %</span></div>
+    <div class="ar-card-body">{% include "partials/chart.html" with chart="criteria-bars" src="indicators-data" title="Note moyenne sur 10 par critère" %}</div></section></div>
+  <div class="col-xl-5"><section class="ar-card h-100" aria-labelledby="c2"><div class="ar-card-head"><h2 id="c2">Évolution de la note</h2></div>
+    <div class="ar-card-body">{% include "partials/chart.html" with chart="time-line" points_src="series-data" label=operator.name granularity=period.granularity title="Évolution de la note moyenne" %}</div></section></div>
+</div>
+<div class="row g-3 mb-3">
+  <div class="col-xl-7"><section class="ar-card h-100" aria-labelledby="c3"><div class="ar-card-head"><h2 id="c3">Répartition négatif · neutre · positif</h2></div>
+    <div class="ar-card-body">{% include "partials/chart.html" with chart="sentiment-stack" src="indicators-data" title="Part de notes négatives, neutres et positives par critère" %}</div></section></div>
+  <div class="col-xl-5"><section class="ar-card h-100" aria-labelledby="c4"><div class="ar-card-head"><h2 id="c4">Mes réclamations par statut</h2><a href="{% url 'operator:complaint_list' %}" class="small">Voir tout</a></div>
+    <div class="ar-card-body">{% include "partials/chart.html" with chart="bars" src="complaints-data" labels='{"received":"Reçues","under_review":"En cours d’examen","info_requested":"Informations demandées","closed":"Clôturées","rejected":"Rejetées"}' empty_text="Aucune réclamation déposée." title="Réclamations par statut" %}</div></section></div>
+</div>
+
+{% include "partials/indicators_card.html" with ind=indicators card_title=operator.name %}
+
+<section class="ar-card" aria-labelledby="ri"><div class="ar-card-head"><h2 id="ri">Imports récents</h2><a href="{% url 'operator:import_list' %}" class="small">Historique complet</a></div>
+  {% if recent_imports %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Fichier</th><th scope="col">Date</th><th scope="col">Statut</th><th scope="col" class="num">Lignes</th><th scope="col" class="num">Rejetées</th></tr></thead><tbody>
+    {% for b in recent_imports %}<tr><td><a href="{% url 'operator:import_detail' b.pk %}">{{ b.original_filename }}</a></td><td>{{ b.created_at|date:"d/m/Y H:i" }}</td><td>{% status_badge b.status b.get_status_display %}</td><td class="num">{{ b.total_rows }}</td><td class="num">{{ b.rejected_rows }}</td></tr>{% endfor %}</tbody></table></div>
+  {% else %}{% url 'operator:import_create' as import_url %}{% include "partials/empty.html" with icon="file-earmark-arrow-up" title="Aucun import pour le moment" text="Importez un fichier CSV ou Excel pour alimenter vos indicateurs." cta_url=import_url cta_label="Importer un fichier" %}{% endif %}
+</section>
+{% endblock %}
+{% block scripts %}
+{{ indicators|json_script:"indicators-data" }}{{ series|json_script:"series-data" }}{{ complaints_by_status|json_script:"complaints-data" }}
+{% include "partials/chart_data.html" %}
+<script src="{% static 'js/charts.js' %}"></script>{% endblock %}

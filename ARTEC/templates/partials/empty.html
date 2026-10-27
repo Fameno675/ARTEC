@@ -1,0 +1,6 @@
+<div class="ar-empty">
+  <i class="bi bi-{{ icon|default:'inbox' }} ar-empty-icon" aria-hidden="true"></i>
+  <h3>{{ title }}</h3>
+  {% if text %}<p>{{ text }}</p>{% endif %}
+  {% if cta_url %}<a class="btn btn-primary" href="{{ cta_url }}">{{ cta_label }}</a>{% endif %}
+</div>

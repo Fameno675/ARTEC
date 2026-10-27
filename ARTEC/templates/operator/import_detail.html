@@ -1,0 +1,36 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Import {{ batch.original_filename }}{% endblock %}
+{% block content %}{% with ns=request.resolver_match.namespace %}
+{% url ns|add:':import_list' as list_url %}{% url ns|add:':import_errors' batch.pk as err_url %}
+<nav class="ar-breadcrumb" aria-label="Fil d’Ariane"><a href="{{ list_url }}">Imports</a> <span aria-hidden="true">/</span> {{ batch.original_filename|truncatechars:40 }}</nav>
+<header class="ar-page-header"><div><h1 class="d-flex flex-wrap align-items-center gap-3">Import {% status_badge batch.status batch.get_status_display %}</h1><p class="ar-lead">{{ batch.original_filename }}</p></div>
+  {% if batch.rejected_rows or batch.review_rows %}<a class="btn btn-outline-primary" href="{{ err_url }}"><i class="bi bi-download me-1" aria-hidden="true"></i>Rapport d’erreurs (CSV)</a>{% endif %}</header>
+
+{% if batch.status == 'failed' %}<div class="ar-notice is-danger" role="alert"><i class="bi bi-x-octagon" aria-hidden="true"></i><div><strong>Import refusé : aucune donnée n’a été enregistrée.</strong><br>{{ summary.message|default:"Le fichier n’a pas pu être traité." }}{% if summary.rejection_rate %} Taux de rejet : {{ summary.rejection_rate|pct }} % (seuil {{ summary.reject_threshold|pct }} %).{% endif %}</div></div>
+{% elif batch.status == 'committed' %}<div class="ar-notice is-info" role="status"><i class="bi bi-check-circle" aria-hidden="true"></i><div>Import enregistré. Les lignes « à examiner » ne comptent dans les indicateurs qu’après validation par un agent ARTEC.</div></div>{% endif %}
+{% for w in summary.warnings %}<div class="ar-notice is-warning" role="note"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div>{{ w }}</div></div>{% endfor %}
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3">{% include "partials/stat.html" with label="Lignes lues" value=batch.total_rows icon="list-check" %}</div>
+  <div class="col-6 col-lg-3">{% include "partials/stat.html" with label="Acceptées" value=batch.accepted_rows icon="check-circle" chip="is-accent" %}</div>
+  <div class="col-6 col-lg-3">{% include "partials/stat.html" with label="À examiner" value=batch.review_rows icon="eye" chip="is-warning" %}</div>
+  <div class="col-6 col-lg-3">{% include "partials/stat.html" with label="Rejetées" value=batch.rejected_rows icon="x-circle" chip="is-danger" note=batch.duplicate_rows|stringformat:"s"|add:" doublon(s)" %}</div>
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-lg-7"><section class="ar-card h-100"><div class="ar-card-head"><h2>Résultat par ligne</h2></div><div class="ar-card-body">
+    {% include "partials/chart.html" with chart="stacked-bar" src="batch-data" parts='[{"key":"accepted_rows","label":"Acceptées","cls":"pos"},{"key":"review_rows","label":"À examiner","cls":"neu"},{"key":"rejected_rows","label":"Rejetées","cls":"neg"}]' title="Répartition des lignes de l’import" %}</div></section></div>
+  <div class="col-lg-5"><section class="ar-card h-100"><div class="ar-card-head"><h2>Informations</h2></div><div class="ar-card-body"><dl class="ar-kv mb-0">
+    <dt>Source</dt><dd>{{ batch.data_source }}</dd><dt>Importé par</dt><dd>{{ batch.uploaded_by.email|default:"—" }} · {{ batch.created_at|date:"d/m/Y H:i" }}</dd>
+    <dt>Format · taille</dt><dd>{{ batch.file_format|upper }} · {{ batch.file_size|filesizeformat }} · schéma {{ batch.schema_version }}</dd><dt>Empreinte SHA-256</dt><dd><code>{{ batch.file_sha256|slice:":16" }}…</code></dd></dl></div></section></div>
+</div>
+
+<section class="ar-card" aria-labelledby="rows"><div class="ar-card-head"><h2 id="rows">Lignes à corriger ou à examiner</h2>
+  <form method="get" class="d-flex gap-2 align-items-center" data-no-loading><label class="visually-hidden" for="rs">Statut</label><select id="rs" name="status" class="form-select form-select-sm w-auto"><option value="">Toutes</option><option value="rejected" {% if filters.status == 'rejected' %}selected{% endif %}>Rejetées</option><option value="to_review" {% if filters.status == 'to_review' %}selected{% endif %}>À examiner</option></select><button class="btn btn-sm btn-outline-primary">Filtrer</button></form></div>
+  {% if row_errors %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Ligne</th><th scope="col">Statut</th><th scope="col">Motif</th><th scope="col">Contenu (extrait)</th></tr></thead><tbody>
+    {% for r in row_errors %}<tr><td>{{ r.row_number }}</td><td>{% status_badge r.status r.get_status_display %}</td><td><ul class="ar-reasons">{% for c in r.error_codes %}<li>{{ c|reason_label }}</li>{% endfor %}</ul></td><td class="small text-muted">{% for k, v in r.raw_data.items %}{% if v %}<span class="me-2">{{ k }}=<span class="text-body">{{ v|truncatechars:40 }}</span></span>{% endif %}{% endfor %}</td></tr>{% endfor %}</tbody></table></div>
+  {% else %}<div class="ar-card-body">{% include "partials/empty.html" with icon="check2-circle" title="Aucune ligne à corriger" text="Toutes les lignes de ce fichier ont été acceptées." %}</div>{% endif %}
+</section>
+{% include "partials/pagination.html" with page_obj=row_errors %}
+{% endwith %}{% endblock %}
+{% block scripts %}{% load static %}<script id="batch-data" type="application/json">{"accepted_rows": {{ batch.accepted_rows }}, "review_rows": {{ batch.review_rows }}, "rejected_rows": {{ batch.rejected_rows }}}</script>
+<script src="{% static 'js/charts.js' %}"></script>{% endblock %}

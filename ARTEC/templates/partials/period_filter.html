@@ -1,0 +1,8 @@
+<form class="ar-filter-bar" method="get" aria-label="Filtrer la période" data-no-loading>
+  {% if operators %}<div class="ar-filter"><label for="f-operator">Opérateur</label><select id="f-operator" name="operator" class="form-select"><option value="">Tous</option>{% for o in operators %}<option value="{{ o.code }}" {% if filters.operator == o.code %}selected{% endif %}>{{ o.name }}</option>{% endfor %}</select></div>{% endif %}
+  <div class="ar-filter"><label for="f-start">Du</label><input id="f-start" type="date" name="start" class="form-control" value="{{ filters.start|date:'Y-m-d' }}"></div>
+  <div class="ar-filter"><label for="f-end">Au</label><input id="f-end" type="date" name="end" class="form-control" value="{{ filters.end|date:'Y-m-d' }}"></div>
+  <div class="ar-filter"><label for="f-gran">Regroupement</label><select id="f-gran" name="granularity" class="form-select">
+    <option value="month" {% if filters.granularity == 'month' %}selected{% endif %}>Par mois</option><option value="week" {% if filters.granularity == 'week' %}selected{% endif %}>Par semaine</option><option value="day" {% if filters.granularity == 'day' %}selected{% endif %}>Par jour</option></select></div>
+  <div><button class="btn btn-primary" type="submit"><i class="bi bi-funnel me-1" aria-hidden="true"></i>Appliquer</button></div>
+</form>

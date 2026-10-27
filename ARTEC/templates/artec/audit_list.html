@@ -1,0 +1,11 @@
+{% extends "layouts/dashboard.html" %}
+{% block title %}Journal d’audit{% endblock %}
+{% block content %}
+<header class="ar-page-header"><div><h1>Journal d’audit</h1><p class="ar-lead">Trace en ajout seul des imports, examens et décisions. Aucune entrée ne peut être modifiée ni supprimée.</p></div></header>
+<form class="ar-filter-bar" method="get" data-no-loading><div class="ar-filter"><label for="fa">Action (préfixe)</label><input id="fa" name="action" class="form-control" placeholder="import., ml., complaint., feedback., survey." value="{{ filters.action }}"></div><div><button class="btn btn-primary">Filtrer</button> <a class="btn btn-link" href="{% url 'artec:audit' %}">Réinitialiser</a></div></form>
+<section class="ar-card">
+{% if entries %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Date</th><th scope="col">Acteur</th><th scope="col">Action</th><th scope="col">Objet</th><th scope="col">Détails</th></tr></thead><tbody>
+{% for e in entries %}<tr><td class="text-nowrap">{{ e.created_at|date:"d/m/Y H:i:s" }}</td><td>{{ e.actor.email|default:"système" }}</td><td><code>{{ e.action }}</code></td><td class="small">{{ e.object_type }} <span class="text-muted">{{ e.object_id|truncatechars:14 }}</span></td><td>{% for k, v in e.metadata.items %}<span class="ar-badge is-neutral me-1 mb-1">{{ k }} : {{ v|truncatechars:30 }}</span>{% endfor %}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="ar-card-body">{% include "partials/empty.html" with icon="clipboard-check" title="Aucune entrée" text="Aucune action ne correspond à ce filtre." %}</div>{% endif %}</section>
+{% include "partials/pagination.html" with page_obj=entries %}
+{% endblock %}

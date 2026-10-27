@@ -1,0 +1,23 @@
+{% extends "layouts/public.html" %}
+{% block title %}Méthodologie et utilisation des données{% endblock %}
+{% block content %}
+<header class="ar-page-header"><div><h1>Méthodologie et utilisation des données</h1><p class="ar-lead">Comment les avis sont collectés, contrôlés et présentés.</p></div></header>
+<div class="ar-prose">
+  <h2>Ce que nous collectons</h2>
+  <p>Pour chaque avis : l’opérateur évalué, des notes de 0 à 10 sur les critères que vous choisissez de noter, la date et, si vous le souhaitez, un court commentaire. <strong>Aucun nom, numéro de téléphone ni compte</strong> n’est demandé.</p>
+  <h2>Protection contre le spam</h2>
+  <p>Un identifiant technique pseudonymisé est associé à chaque avis pour détecter les envois abusifs. Il n’est pas réversible, n’est jamais transmis au moteur d’analyse et est supprimé après 30 jours. Les connexions partagées ne sont pas bloquées : un volume inhabituel place seulement les avis en examen.</p>
+  <h2>Comment les notes sont lues</h2>
+  <ul><li><strong>Positif</strong> : notes de 7 à 10 · <strong>neutre</strong> : 5 à 6 · <strong>négatif</strong> : 0 à 4.</li>
+  <li>Les taux sont calculés sur les <strong>notes</strong>, critère par critère, pas sur les avis.</li>
+  <li>La note moyenne de chaque critère est accompagnée de son <strong>intervalle de confiance à 95 %</strong>.</li></ul>
+  <h2>Échantillons et comparaisons</h2>
+  <p>En dessous de <strong>{{ min_sample }} avis</strong>, un résultat est signalé comme insuffisant et n’est pas classé. Toute comparaison indique la période et le nombre d’avis.</p>
+  <h2>Contrôle des données</h2>
+  <p>Les avis incohérents ou atypiques sont mis « à examiner » et ne comptent dans les indicateurs qu’après validation par un agent. Un moteur d’analyse statistique peut signaler des réponses atypiques : <strong>ce signalement n’est ni une preuve, ni une probabilité de fraude</strong>. Aucune décision réglementaire n’est prise automatiquement ; elle exige un examen humain et des preuves vérifiables.</p>
+  <h2>Limites</h2>
+  <ul>{% for l in limitations %}<li>{{ l }}</li>{% endfor %}</ul>
+  <h2>Données fournies par les opérateurs</h2>
+  <p>Les fichiers importés par les opérateurs sont déclaratifs : ils sont conservés avec leur provenance et exclus par défaut des comparaisons entre opérateurs.</p>
+</div>
+{% endblock %}

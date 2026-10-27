@@ -1,0 +1,557 @@
+{
+  "batch_id": "DEMO-FICTIF-001",
+  "engine_version": "1.0.0",
+  "model_version": "rules-1.0.0+iforest:batch-fit",
+  "analysis_date": "2026-10-25T04:37:16.272669+00:00",
+  "status": "ok_with_warnings",
+  "metadata": {
+    "source": "synthetic_fictif"
+  },
+  "total_observations": 1314,
+  "accepted_observations": 1268,
+  "review_observations": 39,
+  "valid_observations": 1307,
+  "rejected_observations": 7,
+  "profile": {
+    "n_rows": 1314,
+    "n_columns": 17,
+    "columns": {
+      "Identifiant avis": {
+        "dtype": "str",
+        "missing": 0
+      },
+      "Opérateur": {
+        "dtype": "str",
+        "missing": 0
+      },
+      "Source": {
+        "dtype": "str",
+        "missing": 0
+      }
+    },
+    "period": {
+      "min": "2026-09-01T00:27:25+00:00",
+      "max": "2099-01-01T00:00:00+00:00"
+    },
+    "by_source": {
+      "public_review": 1089,
+      "survey": 133,
+      "operator_file": 92
+    },
+    "by_operator": {
+      "Orange Madagascar": 500,
+      "Yas Madagascar": 421,
+      "Airtel Madagascar": 392,
+      "(inconnu)": 1
+    },
+    "rating_distributions": {
+      "internet_vitesse": {
+        "n": 1027,
+        "missing": 286,
+        "histogram": {
+          "0": 37,
+          "1": 9,
+          "2": 47,
+          "3": 52,
+          "4": 98,
+          "5": 156,
+          "6": 212,
+          "7": 159,
+          "8": 120,
+          "9": 66,
+          "10": 71
+        }
+      }
+    },
+    "verified_labels": {
+      "present": false,
+      "n_labeled": 0,
+      "n_reliable": 0,
+      "n_unreliable": 0
+    }
+  },
+  "preprocessing_log": [
+    {
+      "step": "normalize_columns",
+      "detail": "17 colonnes reconnues",
+      "count": 17
+    },
+    {
+      "step": "normalize_operator",
+      "detail": "Noms d'opérateurs ramenés aux noms canoniques ; inconnus -> NaN (rejetés ensuite)",
+      "count": 1
+    },
+    {
+      "step": "parse_dates",
+      "detail": "Dates converties en UTC ; non interprétables -> NaT",
+      "count": 1
+    },
+    {
+      "step": "numeric_conversion",
+      "detail": "Notes converties en nombres (virgule décimale acceptée) ; valeurs non numériques -> NaN",
+      "count": 1
+    },
+    {
+      "step": "pseudonymize_visitor",
+      "detail": "Identifiant visiteur remplacé par un condensat salé (non réversible)",
+      "count": null
+    },
+    {
+      "step": "drop_comment_text",
+      "detail": "Texte des commentaires non conservé : seuls longueur et condensat servent aux contrôles",
+      "count": null
+    }
+  ],
+  "validation_report": {
+    "accepted": 1268,
+    "review": 39,
+    "rejected": 7,
+    "reason_counts": {
+      "probable_duplicate": 38,
+      "future_date": 1,
+      "rating_out_of_range": 2,
+      "invalid_date": 1,
+      "unknown_operator": 1,
+      "exact_duplicate": 1,
+      "no_ratings": 1,
+      "non_numeric_value": 1
+    },
+    "reason_messages": {
+      "probable_duplicate": "Même visiteur, même opérateur et mêmes notes à quelques minutes d'intervalle.",
+      "future_date": "Date située dans le futur.",
+      "rating_out_of_range": "Au moins une note hors de la plage autorisée.",
+      "invalid_date": "Date absente ou non interprétable.",
+      "unknown_operator": "Opérateur absent ou non reconnu.",
+      "exact_duplicate": "Doublon exact d'une observation précédente du lot.",
+      "no_ratings": "Aucune note exploitable.",
+      "non_numeric_value": "Valeur(s) non numérique(s) ignorée(s) dans les notes."
+    }
+  },
+  "reference_period": {
+    "start": "2026-09-01T00:27:25+00:00",
+    "end": "2026-09-28T22:36:37+00:00",
+    "defined_by": "étendue du lot (par défaut)",
+    "n_observations_in_period": 1307
+  },
+  "quality_scores": {
+    "Orange Madagascar": {
+      "n_valid": 500,
+      "dimensions": {
+        "internet": {
+          "n": 491,
+          "mean": 6.334,
+          "median": 6.5,
+          "std": 1.685,
+          "ci95_low": 6.185,
+          "ci95_high": 6.484,
+          "share_low": 0.073,
+          "share_mid": 0.493,
+          "share_high": 0.434,
+          "reliable_sample": true,
+          "criteria_used": [
+            "internet_vitesse",
+            "internet_stabilite",
+            "internet_disponibilite"
+          ],
+          "weights": {
+            "internet_vitesse": 1.0,
+            "internet_stabilite": 1.0,
+            "internet_disponibilite": 1.0
+          }
+        },
+        "appels": {
+          "n": 466,
+          "mean": 6.476,
+          "median": 7.0,
+          "std": 1.867,
+          "ci95_low": 6.306,
+          "ci95_high": 6.646,
+          "share_low": 0.079,
+          "share_mid": 0.406,
+          "share_high": 0.515,
+          "reliable_sample": true,
+          "criteria_used": [
+            "appels_qualite_sonore",
+            "appels_reussite"
+          ],
+          "weights": {
+            "appels_qualite_sonore": 1.0,
+            "appels_reussite": 1.0
+          }
+        },
+        "sms": {
+          "n": 371,
+          "mean": 6.736,
+          "median": 7.0,
+          "std": 2.159,
+          "ci95_low": 6.515,
+          "ci95_high": 6.956,
+          "share_low": 0.075,
+          "share_mid": 0.364,
+          "share_high": 0.561,
+          "reliable_sample": true,
+          "criteria_used": [
+            "sms_fiabilite"
+          ],
+          "weights": {
+            "sms_fiabilite": 1.0
+          }
+        },
+        "tarification": {
+          "n": 353,
+          "mean": 5.309,
+          "median": 6.0,
+          "std": 2.11,
+          "ci95_low": 5.088,
+          "ci95_high": 5.53,
+          "share_low": 0.195,
+          "share_mid": 0.516,
+          "share_high": 0.289,
+          "reliable_sample": true,
+          "criteria_used": [
+            "tarification"
+          ],
+          "weights": {
+            "tarification": 1.0
+          }
+        },
+        "credit_forfaits": {
+          "n": 382,
+          "mean": 6.115,
+          "median": 6.0,
+          "std": 2.097,
+          "ci95_low": 5.904,
+          "ci95_high": 6.326,
+          "share_low": 0.105,
+          "share_mid": 0.445,
+          "share_high": 0.45,
+          "reliable_sample": true,
+          "criteria_used": [
+            "credit_forfaits"
+          ],
+          "weights": {
+            "credit_forfaits": 1.0
+          }
+        },
+        "mobile_money": {
+          "n": 370,
+          "mean": 6.6,
+          "median": 7.0,
+          "std": 2.162,
+          "ci95_low": 6.379,
+          "ci95_high": 6.821,
+          "share_low": 0.086,
+          "share_mid": 0.316,
+          "share_high": 0.597,
+          "reliable_sample": true,
+          "criteria_used": [
+            "mobile_money"
+          ],
+          "weights": {
+            "mobile_money": 1.0
+          }
+        },
+        "service_client": {
+          "n": 363,
+          "mean": 5.763,
+          "median": 6.0,
+          "std": 2.077,
+          "ci95_low": 5.549,
+          "ci95_high": 5.977,
+          "share_low": 0.143,
+          "share_mid": 0.471,
+          "share_high": 0.386,
+          "reliable_sample": true,
+          "criteria_used": [
+            "service_client"
+          ],
+          "weights": {
+            "service_client": 1.0
+          }
+        }
+      },
+      "global_score": null,
+      "criteria": {
+        "internet_vitesse": {
+          "label": "Internet mobile : vitesse ressentie de téléchargement",
+          "n": 391,
+          "mean": 6.379,
+          "median": 7.0,
+          "std": 2.113,
+          "ci95_low": 6.168,
+          "ci95_high": 6.589,
+          "share_low": 0.102,
+          "share_mid": 0.386,
+          "share_high": 0.512,
+          "reliable_sample": true
+        }
+      }
+    }
+  },
+  "trend": {
+    "Orange Madagascar": [
+      {
+        "period_end": "2026-09-06T00:00:00+00:00",
+        "n_obs": 111,
+        "low_sample": false,
+        "dimensions": {
+          "internet": 6.714,
+          "appels": 6.726,
+          "sms": 7.049,
+          "tarification": 5.868,
+          "credit_forfaits": 6.523,
+          "mobile_money": 6.952,
+          "service_client": 6.24
+        }
+      }
+    ]
+  },
+  "comparisons": {
+    "internet": {
+      "ranking": [
+        {
+          "operator": "Yas Madagascar",
+          "score": 6.335,
+          "n": 417
+        },
+        {
+          "operator": "Orange Madagascar",
+          "score": 6.334,
+          "n": 491
+        },
+        {
+          "operator": "Airtel Madagascar",
+          "score": 4.911,
+          "n": 382
+        }
+      ],
+      "pairs": [
+        {
+          "a": "Yas Madagascar",
+          "b": "Orange Madagascar",
+          "difference": 0.001,
+          "ci_overlap": true,
+          "reading": "différence non démontrée (IC qui se chevauchent)"
+        },
+        {
+          "a": "Yas Madagascar",
+          "b": "Airtel Madagascar",
+          "difference": 1.424,
+          "ci_overlap": false,
+          "reading": "différence de perception probable ; ne prouve aucune faute"
+        },
+        {
+          "a": "Orange Madagascar",
+          "b": "Airtel Madagascar",
+          "difference": 1.423,
+          "ci_overlap": false,
+          "reading": "différence de perception probable ; ne prouve aucune faute"
+        }
+      ],
+      "excluded_small_sample": []
+    }
+  },
+  "anomalies": [
+    {
+      "obs_id": "ROW1233",
+      "row_number": 1,
+      "operator": "Yas Madagascar",
+      "anomaly_score": 0.6957872658955727,
+      "anomaly_method": "isolation_forest+rules",
+      "reasons": [
+        {
+          "code": "uniform_extreme_ratings",
+          "message": "Toutes les notes renseignées sont identiques et extrêmes (≥5 critères). Peut être une opinion sincère très tranchée : à examiner, pas une preuve."
+        },
+        {
+          "code": "visitor_burst",
+          "message": "≥5 soumissions du même visiteur (pseudonyme) pour le même opérateur en 60 min."
+        },
+        {
+          "code": "repeated_comment",
+          "message": "Commentaire identique présent dans ≥3 observations du lot."
+        },
+        {
+          "code": "statistical_outlier",
+          "message": "Combinaison de variables statistiquement inhabituelle (score IF 0.70). Interprétation à valider par un agent."
+        }
+      ],
+      "evidence": {
+        "n_ratings": 10.0,
+        "mean_rating": 10.0,
+        "visitor_burst_count": 11.0,
+        "op_hour_volume": 42.0,
+        "comment_repeat_count": 40.0
+      },
+      "authenticity_status": "needs_review"
+    },
+    {
+      "obs_id": "ROW1255",
+      "row_number": 24,
+      "operator": "Airtel Madagascar",
+      "anomaly_score": 0.6359630800646227,
+      "anomaly_method": "isolation_forest+rules",
+      "reasons": [
+        {
+          "code": "uniform_extreme_ratings",
+          "message": "Toutes les notes renseignées sont identiques et extrêmes (≥5 critères). Peut être une opinion sincère très tranchée : à examiner, pas une preuve."
+        }
+      ],
+      "evidence": {
+        "n_ratings": 10.0,
+        "mean_rating": 0.0,
+        "visitor_burst_count": 1.0,
+        "op_hour_volume": 35.0,
+        "comment_repeat_count": 1.0
+      },
+      "authenticity_status": "needs_review"
+    }
+  ],
+  "group_anomalies": [
+    {
+      "type": "temporal_burst",
+      "operator": "Airtel Madagascar",
+      "hour_start": "2026-09-16T14:00:00+00:00",
+      "n_observations": 35,
+      "robust_z": 35.0,
+      "baseline_median_per_hour": 0.0,
+      "share_low_mean_rating": 1.0,
+      "n_distinct_visitors": 35,
+      "obs_ids": [
+        "ROW1255",
+        "ROW1261",
+        "ROW1273",
+        "…"
+      ],
+      "message": "Volume horaire inhabituel. Interprétations possibles : panne réelle, campagne de sondage légitime, ou soumissions concertées. Ne constitue pas une preuve de fraude."
+    },
+    {
+      "type": "temporal_burst",
+      "operator": "Orange Madagascar",
+      "hour_start": "2026-09-21T09:00:00+00:00",
+      "n_observations": 31,
+      "robust_z": 31.0,
+      "baseline_median_per_hour": 0.0,
+      "share_low_mean_rating": 0.968,
+      "n_distinct_visitors": 31,
+      "obs_ids": [
+        "ROW1299",
+        "ROW1291",
+        "ROW1303",
+        "…"
+      ],
+      "message": "Volume horaire inhabituel. Interprétations possibles : panne réelle, campagne de sondage légitime, ou soumissions concertées. Ne constitue pas une preuve de fraude."
+    },
+    {
+      "type": "temporal_burst",
+      "operator": "Yas Madagascar",
+      "hour_start": "2026-09-11T11:00:00+00:00",
+      "n_observations": 42,
+      "robust_z": 42.0,
+      "baseline_median_per_hour": 0.0,
+      "share_low_mean_rating": 0.0,
+      "n_distinct_visitors": 5,
+      "obs_ids": [
+        "ROW1233",
+        "ROW1221",
+        "ROW1223",
+        "…"
+      ],
+      "message": "Volume horaire inhabituel. Interprétations possibles : panne réelle, campagne de sondage légitime, ou soumissions concertées. Ne constitue pas une preuve de fraude."
+    }
+  ],
+  "rejected": [
+    {
+      "obs_id": "ROW1310",
+      "row_number": 8,
+      "reasons": [
+        {
+          "code": "future_date",
+          "message": "Date située dans le futur."
+        }
+      ]
+    },
+    {
+      "obs_id": "ROW1307",
+      "row_number": 218,
+      "reasons": [
+        {
+          "code": "rating_out_of_range",
+          "message": "Au moins une note hors de la plage autorisée."
+        }
+      ]
+    }
+  ],
+  "observation_results": [
+    {
+      "obs_id": "ROW1233",
+      "row_number": 1,
+      "operator": "Yas Madagascar",
+      "validation_status": "review",
+      "authenticity_status": "needs_review",
+      "anomaly_score": 0.6957872658955727,
+      "anomaly_method": "isolation_forest+rules",
+      "reasons": [
+        {
+          "code": "probable_duplicate",
+          "message": "Même visiteur, même opérateur et mêmes notes à quelques minutes d'intervalle."
+        },
+        {
+          "code": "uniform_extreme_ratings",
+          "message": "Toutes les notes renseignées sont identiques et extrêmes (≥5 critères). Peut être une opinion sincère très tranchée : à examiner, pas une preuve."
+        },
+        {
+          "code": "visitor_burst",
+          "message": "≥5 soumissions du même visiteur (pseudonyme) pour le même opérateur en 60 min."
+        },
+        {
+          "code": "repeated_comment",
+          "message": "Commentaire identique présent dans ≥3 observations du lot."
+        },
+        {
+          "code": "statistical_outlier",
+          "message": "Combinaison de variables statistiquement inhabituelle (score IF 0.70). Interprétation à valider par un agent."
+        }
+      ]
+    },
+    {
+      "obs_id": "ROW77",
+      "row_number": 2,
+      "operator": "Orange Madagascar",
+      "validation_status": "accepted",
+      "authenticity_status": "no_anomaly_detected",
+      "anomaly_score": 0.4440971020543295,
+      "anomaly_method": "isolation_forest+rules",
+      "reasons": []
+    },
+    {
+      "obs_id": "ROW963",
+      "row_number": 3,
+      "operator": "Orange Madagascar",
+      "validation_status": "accepted",
+      "authenticity_status": "no_anomaly_detected",
+      "anomaly_score": 0.5066461280757399,
+      "anomaly_method": "isolation_forest+rules",
+      "reasons": []
+    }
+  ],
+  "authenticity": {
+    "supervised_model_used": false,
+    "note": "Aucun modèle supervisé qualifié : pas de probabilité d'authenticité. 'no_anomaly_detected' ne signifie PAS 'authentique'."
+  },
+  "representativity_notes": [
+    "Les avis publics sont auto-sélectionnés (aucun compte requis) : les mécontents et les très satisfaits sont généralement sur-représentés ; l'échantillon n'est pas probabiliste.",
+    "Les résultats ne sont pas extrapolables à la population des abonnés sans pondération/redressement.",
+    "Un même visiteur peut soumettre plusieurs avis : les observations ne sont pas strictement indépendantes (les IC sont donc optimistes).",
+    "Les fichiers fournis par les opérateurs et les sondages ont des biais de collecte différents ; comparer sources et périodes avec prudence.",
+    "Une note faible n'indique ni une fraude ni une violation : c'est une perception déclarée."
+  ],
+  "warnings": [
+    {
+      "code": "iforest_batch_reference",
+      "message": "Aucun modèle de référence : Isolation Forest ajusté sur le lot lui-même. Scores relatifs au lot, non comparables entre lots."
+    }
+  ],
+  "errors": [],
+  "_note": "EXTRAIT tronqué — données FICTIVES. Listes longues raccourcies pour la lisibilité."
+}

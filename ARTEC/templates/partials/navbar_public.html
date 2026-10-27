@@ -1,0 +1,18 @@
+{% load static artec_ui %}
+<nav class="ar-navbar navbar navbar-expand-lg" aria-label="Navigation principale">
+  <div class="container">
+    <a class="navbar-brand" href="{% url 'public:home' %}"><img class="ar-brand-mark" src="{% static 'img/artec-mark.svg' %}" alt="" width="34" height="34">ARTEC</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#ar-nav" aria-controls="ar-nav" aria-expanded="false" aria-label="Afficher le menu"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="ar-nav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link {% active_nav 'public:home' %}" href="{% url 'public:home' %}">Accueil</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'public:home' %}#operateurs">Opérateurs</a></li>
+        <li class="nav-item"><a class="nav-link {% active_nav 'public:survey' %}" href="{% url 'public:survey_list' %}">Donner mon avis</a></li>
+        <li class="nav-item"><a class="nav-link {% active_nav 'public:results' %}" href="{% url 'public:results' %}">Résultats</a></li>
+        <li class="nav-item"><a class="nav-link {% active_nav 'public:methodology' %}" href="{% url 'public:methodology' %}">Méthodologie</a></li>
+      </ul>
+      {% if user.is_authenticated %}{% include "partials/account_menu.html" %}{% else %}
+      <a class="btn btn-outline-light btn-sm" href="{% url 'accounts:login' %}"><i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Connexion opérateurs / ARTEC</a>{% endif %}
+    </div>
+  </div>
+</nav>

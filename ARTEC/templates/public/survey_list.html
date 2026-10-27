@@ -1,0 +1,33 @@
+{% extends "layouts/public.html" %}{% load static artec_ui %}
+{% block title %}Donner mon avis{% endblock %}
+{% block content %}{% operators_map as OM %}
+<header class="ar-page-header"><div><h1>Donner mon avis</h1><p class="ar-lead">Choisissez l’opérateur que vous souhaitez évaluer, puis un sondage ouvert. Aucun compte n’est nécessaire.</p></div></header>
+
+<section aria-labelledby="choose-op" class="mb-4">
+  <h2 id="choose-op" class="h5">1. Quel opérateur évaluez-vous ?</h2>
+  <div class="ar-op-choice" role="radiogroup" aria-labelledby="choose-op" data-operator-picker>
+    {% for code, o in OM.items %}{% if o.active %}
+    <label class="ar-op-option"><input type="radio" name="op" value="{{ code }}"><span class="ar-op-card"><span class="ar-monogram s{{ o.index }}" aria-hidden="true">{{ o.name|initials }}</span><span class="fw-semibold">{{ o.name }}</span></span></label>
+    {% endif %}{% endfor %}
+  </div>
+  <p class="form-text mb-0">Vous pourrez changer d’opérateur dans le formulaire. Vous pouvez évaluer plusieurs opérateurs.</p>
+</section>
+
+<section aria-labelledby="open-surveys">
+  <h2 id="open-surveys" class="h5">2. Sondages ouverts</h2>
+  <div class="row g-3">
+    {% for s in surveys %}
+    <div class="col-md-6"><article class="ar-card h-100"><div class="ar-card-body d-flex flex-column h-100">
+      <h3 class="h5">{{ s.title }}</h3>
+      <p class="text-muted">{{ s.description|default:"Évaluez la qualité des services de votre opérateur." }}</p>
+      <p class="small text-muted mb-3"><i class="bi bi-calendar-event me-1" aria-hidden="true"></i>
+        {% if s.ends_at %}Ouvert jusqu’au {{ s.ends_at|date:"d/m/Y" }}{% else %}Ouvert en continu{% endif %} · notes de 0 à 10</p>
+      <a class="btn btn-primary mt-auto align-self-start" href="{% url 'public:survey_detail' s.slug %}" data-survey-link>Répondre au sondage <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i></a>
+    </div></article></div>
+    {% empty %}
+    <div class="col-12"><div class="ar-card">{% url 'public:results' as results_url %}{% include "partials/empty.html" with icon="clipboard-x" title="Aucun sondage ouvert pour le moment" text="Revenez bientôt, ou consultez les résultats déjà publiés." cta_url=results_url cta_label="Voir les résultats" %}</div></div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}{% load static %}<script src="{% static 'js/survey-list.js' %}"></script>{% endblock %}

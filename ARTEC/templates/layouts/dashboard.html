@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% load static artec_ui %}
+{% block page_css %}<link rel="stylesheet" href="{% static 'css/artec-dashboard.css' %}">{% endblock %}
+{% block shell %}
+<header class="ar-topbar navbar navbar-dark px-3">
+  <div class="d-flex align-items-center gap-2">
+    <button class="btn btn-link d-lg-none p-1 fs-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#ar-sidebar" aria-controls="ar-sidebar" aria-label="Ouvrir le menu"><i class="bi bi-list" aria-hidden="true"></i></button>
+    <a class="navbar-brand m-0" href="{% url 'accounts:home_redirect' %}"><img class="ar-brand-mark" src="{% static 'img/artec-mark.svg' %}" alt="" width="34" height="34">ARTEC</a>
+    <span class="ar-role-pill d-none d-sm-inline">{% if user.role == 'artec_admin' %}Espace ARTEC{% else %}Espace opérateur{% endif %}</span>
+  </div>
+  {% include "partials/account_menu.html" %}
+</header>
+<div class="ar-shell">
+  <aside class="ar-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="ar-sidebar" aria-label="Navigation de l’espace">
+    <div class="offcanvas-header d-lg-none"><span class="fw-bold">Menu</span><button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#ar-sidebar" aria-label="Fermer"></button></div>
+    <nav class="offcanvas-body d-flex">
+      {% if user.role == 'artec_admin' %}{% include "partials/sidebar_artec.html" %}{% else %}{% include "partials/sidebar_operator.html" %}{% endif %}
+    </nav>
+  </aside>
+  <main id="contenu" tabindex="-1" class="ar-main">
+    {% include "partials/messages.html" %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

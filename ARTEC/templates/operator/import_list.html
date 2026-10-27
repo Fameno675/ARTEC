@@ -1,0 +1,15 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Imports{% endblock %}
+{% block content %}
+<header class="ar-page-header"><div><h1>Mes imports</h1><p class="ar-lead">Historique de vos fichiers CSV et Excel, avec leur état et leur rapport d’erreurs.</p></div>
+  <a class="btn btn-primary" href="{% url 'operator:import_create' %}"><i class="bi bi-upload me-1" aria-hidden="true"></i>Nouvel import</a></header>
+<section class="ar-card">
+  {% if batches %}
+  <div class="ar-card-head"><label class="visually-hidden" for="q">Filtrer cette page</label><input id="q" type="search" class="form-control w-auto" placeholder="Filtrer cette page…" data-table-filter="#imports" data-filter-count="#q-count"><small class="text-muted" id="q-count" aria-live="polite"></small></div>
+  <div class="ar-table-wrap"><table class="ar-table" id="imports"><thead><tr><th scope="col">Fichier</th><th scope="col">Date</th><th scope="col">Statut</th><th scope="col" class="num">Lignes</th><th scope="col" class="num">Acceptées</th><th scope="col" class="num">À examiner</th><th scope="col" class="num">Rejetées</th></tr></thead><tbody>
+  {% for b in batches %}<tr><td><a href="{% url 'operator:import_detail' b.pk %}">{{ b.original_filename }}</a></td><td>{{ b.created_at|date:"d/m/Y H:i" }}</td><td>{% status_badge b.status b.get_status_display %}</td><td class="num">{{ b.total_rows }}</td><td class="num">{{ b.accepted_rows }}</td><td class="num">{{ b.review_rows }}</td><td class="num">{{ b.rejected_rows }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<div class="ar-card-body">{% url 'operator:import_create' as u %}{% include "partials/empty.html" with icon="file-earmark-arrow-up" title="Aucun import" text="Vos fichiers importés apparaîtront ici avec leur résumé." cta_url=u cta_label="Importer un fichier" %}</div>{% endif %}
+</section>
+{% include "partials/pagination.html" with page_obj=batches %}
+{% endblock %}

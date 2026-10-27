@@ -1,0 +1,9 @@
+{% extends "layouts/dashboard.html" %}
+{% block title %}Nouvelle source{% endblock %}
+{% block content %}
+<nav class="ar-breadcrumb" aria-label="Fil d’Ariane"><a href="{% url 'artec:source_list' %}">Sources</a> <span aria-hidden="true">/</span> Nouvelle</nav>
+<header class="ar-page-header"><div><h1>Nouvelle source de données</h1></div></header>
+<div class="ar-notice is-warning" role="note"><i class="bi bi-shield-exclamation" aria-hidden="true"></i><div>N’importez que des données obtenues légalement : <strong>API officielle, accès autorisé ou fichier exporté conformément aux conditions applicables</strong>. Le scraping contournant les restrictions d’une plateforme est exclu.</div></div>
+<form method="post" novalidate class="ar-card" style="max-width:820px"><div class="ar-card-body">{% csrf_token %}{% include "partials/form_fields.html" %}
+  <div class="d-flex gap-2"><button class="btn btn-primary" type="submit" data-loading-text="Enregistrement…">Enregistrer</button><a class="btn btn-link" href="{% url 'artec:source_list' %}">Annuler</a></div></div></form>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "layouts/public.html" %}{% load static artec_ui %}
+{% block title %}Résultats{% endblock %}
+{% block content %}{% criteria_map as CM %}
+<header class="ar-page-header"><div><h1>Résultats</h1><p class="ar-lead">Notes moyennes des avis validés, par opérateur et par critère, avec la période, le nombre d’avis et l’intervalle de confiance.</p></div></header>
+<div class="ar-notice is-info" role="note"><i class="bi bi-info-circle" aria-hidden="true"></i><div>{{ disclaimer }} Seuil d’échantillon : <strong>{{ min_sample }} avis</strong> ; en dessous, le résultat est signalé et n’est pas classé.</div></div>
+{% include "partials/period_filter.html" %}
+
+{% if indicators %}
+<section class="ar-card mb-4" aria-labelledby="cmp"><div class="ar-card-head"><h2 id="cmp">Note moyenne par critère</h2><span class="small text-muted">0 = très mauvais · 10 = excellent</span></div>
+  <div class="ar-card-body">{% include "partials/chart.html" with chart="criteria-bars" src="indicators-data" title="Note moyenne sur 10 par critère et par opérateur" %}</div></section>
+<section class="ar-card mb-4" aria-labelledby="evo"><div class="ar-card-head"><h2 id="evo">Évolution de la note moyenne</h2></div>
+  <div class="ar-card-body">{% include "partials/chart.html" with chart="time-line" src="indicators-data" granularity=filters.granularity title="Évolution de la note moyenne par période" %}</div></section>
+<h2 class="h4 mb-3">Détail par opérateur</h2>
+{% for ind in indicators %}{% include "partials/indicators_card.html" %}{% endfor %}
+{% else %}
+<div class="ar-card">{% include "partials/empty.html" with icon="building" title="Aucun opérateur à afficher" text="Aucun opérateur ne correspond à cette sélection." %}</div>
+{% endif %}
+<section class="mt-4" aria-labelledby="lim"><h2 id="lim" class="h5">Limites</h2><ul class="text-muted">{% for l in limitations %}<li>{{ l }}</li>{% endfor %}</ul>
+<p class="ar-disclaimer">Les imports déclaratifs fournis par les opérateurs eux-mêmes sont exclus de cette comparaison. <a href="{% url 'public:methodology' %}">Voir la méthodologie</a>.</p></section>
+{% endblock %}
+{% block scripts %}{% load artec_ui %}
+{{ indicators|json_script:"indicators-data" }}
+{% include "partials/chart_data.html" %}
+<script src="{% static 'js/charts.js' %}"></script>{% endblock %}

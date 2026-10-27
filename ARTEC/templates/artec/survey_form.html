@@ -1,0 +1,16 @@
+{% extends "layouts/dashboard.html" %}
+{% block title %}{% if survey %}Modifier le sondage{% else %}Nouveau sondage{% endif %}{% endblock %}
+{% block content %}
+<nav class="ar-breadcrumb" aria-label="Fil d’Ariane"><a href="{% url 'artec:survey_list' %}">Sondages</a> <span aria-hidden="true">/</span> {% if survey %}{{ survey.title }}{% else %}Nouveau{% endif %}</nav>
+<header class="ar-page-header"><div><h1>{% if survey %}Modifier le sondage{% else %}Nouveau sondage{% endif %}</h1><p class="ar-lead">L’échelle est fixée de 0 à 10 par le backend. Les critères cochés apparaissent dans le formulaire public.</p></div></header>
+<form method="post" novalidate class="ar-card" style="max-width:820px"><div class="ar-card-body">{% csrf_token %}
+  {% if form.non_field_errors %}<div class="ar-notice is-danger" role="alert"><i class="bi bi-x-octagon" aria-hidden="true"></i><div>{{ form.non_field_errors|join:" " }}</div></div>{% endif %}
+  {% include "partials/field.html" with field=form.title %}{% include "partials/field.html" with field=form.slug %}{% include "partials/field.html" with field=form.description %}
+  <div class="row"><div class="col-md-6">{% include "partials/field.html" with field=form.starts_at %}</div><div class="col-md-6">{% include "partials/field.html" with field=form.ends_at %}</div></div>
+  <fieldset class="mb-3"><legend class="form-label ar-required fs-6">Critères</legend>
+    {% for c in form.criteria_selection %}<div class="form-check mb-1">{{ c.tag }}<label class="form-check-label" for="{{ c.id_for_label }}">{{ c.choice_label }}</label></div>{% endfor %}
+    {% if form.criteria_selection.errors %}<div class="ar-field-error" role="alert">{{ form.criteria_selection.errors|join:" " }}</div>{% endif %}</fieldset>
+  {% include "partials/field.html" with field=form.is_active %}
+  <div class="d-flex gap-2"><button class="btn btn-primary" type="submit" data-loading-text="Enregistrement…">Enregistrer</button><a class="btn btn-link" href="{% url 'artec:survey_list' %}">Annuler</a></div>
+</div></form>
+{% endblock %}

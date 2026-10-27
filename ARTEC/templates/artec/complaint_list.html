@@ -1,0 +1,15 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Réclamations{% endblock %}
+{% block content %}{% operators_map as OM %}
+<header class="ar-page-header"><div><h1>Réclamations</h1><p class="ar-lead">Dossiers déposés par les opérateurs. Chaque réclamation est une allégation à instruire, non une preuve.</p></div></header>
+<form class="ar-filter-bar" method="get" data-no-loading>
+  <div class="ar-filter"><label for="cs">Statut</label><select id="cs" name="status" class="form-select"><option value="">Tous</option>{% for v, l in statuses %}<option value="{{ v }}" {% if filters.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+  <div class="ar-filter"><label for="cc">Plaignant</label><select id="cc" name="complainant" class="form-select"><option value="">Tous</option>{% for code, o in OM.items %}<option value="{{ code }}" {% if filters.complainant == code %}selected{% endif %}>{{ o.name }}</option>{% endfor %}</select></div>
+  <div class="ar-filter"><label for="ct">Opérateur visé</label><select id="ct" name="target" class="form-select"><option value="">Tous</option>{% for code, o in OM.items %}<option value="{{ code }}" {% if filters.target == code %}selected{% endif %}>{{ o.name }}</option>{% endfor %}</select></div>
+  <div><button class="btn btn-primary">Filtrer</button> <a class="btn btn-link" href="{% url 'artec:complaint_list' %}">Réinitialiser</a></div></form>
+<section class="ar-card">
+{% if complaints %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Référence</th><th scope="col">Plaignant</th><th scope="col">Opérateur visé</th><th scope="col">Objet</th><th scope="col">Statut</th><th scope="col">Déposée le</th></tr></thead><tbody>
+{% for c in complaints %}<tr><td><a class="fw-semibold" href="{% url 'artec:complaint_detail' c.reference %}">{{ c.reference }}</a></td><td>{{ c.complainant_operator }}</td><td>{{ c.target_operator }}</td><td>{{ c.subject|truncatechars:60 }}</td><td>{% status_badge c.status c.get_status_display %}</td><td>{{ c.created_at|date:"d/m/Y" }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="ar-card-body">{% include "partials/empty.html" with icon="flag" title="Aucune réclamation" text="Aucun dossier ne correspond à ces critères." %}</div>{% endif %}</section>
+{% include "partials/pagination.html" with page_obj=complaints %}
+{% endblock %}

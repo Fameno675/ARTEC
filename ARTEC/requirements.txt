@@ -1,0 +1,11 @@
+# Application web
+Django>=5.2,<5.3
+psycopg[binary]>=3.2
+python-dotenv>=1.0
+openpyxl>=3.1
+# Moteur ML (ml_engine)
+pandas>=2.2
+numpy>=1.26
+scipy>=1.11
+scikit-learn>=1.4
+joblib>=1.3

@@ -1,0 +1,26 @@
+{% load artec_ui %}
+<section class="ar-card mb-3" aria-labelledby="ind-{{ ind.operator|default:'all' }}-{{ forloop.counter|default:'1' }}">
+  <div class="ar-card-head">
+    <h3 id="ind-{{ ind.operator|default:'all' }}-{{ forloop.counter|default:'1' }}">{% if card_title %}{{ card_title }}{% elif ind.operator_name %}{{ ind.operator_name }}{% elif ind.operator %}{{ ind.operator }}{% else %}Tous les opérateurs{% endif %}</h3>
+    <div class="small text-muted">
+      Période : {{ ind.period.start|default:"depuis le début" }} → {{ ind.period.end|default:"aujourd’hui" }} · <strong>n = {{ ind.n_submissions }}</strong> avis
+      {% if ind.quality_score is not None %}· note moyenne <strong>{{ ind.quality_score|floatformat:1 }}/10</strong>{% endif %}
+    </div>
+  </div>
+  <div class="ar-card-body">
+    {% if not ind.sample_sufficient %}<div class="ar-notice is-warning" role="note"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i><div><strong>Échantillon insuffisant</strong> (n = {{ ind.n_submissions }} &lt; {{ ind.min_sample }}). Résultat indicatif, non classé.</div></div>{% endif %}
+    {% if ind.criteria %}
+    <div class="ar-table-wrap"><table class="ar-table">
+      <caption>Notes par critère — positif : 7–10, neutre : 5–6, négatif : 0–4 (calculé sur les notes, non sur les avis).</caption>
+      <thead><tr><th scope="col">Critère</th><th scope="col" class="num">Notes (n)</th><th scope="col" class="num">Moyenne</th><th scope="col" class="num">IC 95 %</th><th scope="col" class="num">Positif</th><th scope="col" class="num">Neutre</th><th scope="col" class="num">Négatif</th></tr></thead>
+      <tbody>{% for c in ind.criteria %}<tr>
+        <th scope="row" class="fw-normal">{{ CM|get_item:c.code|get_item:"label"|default:c.code }}</th>
+        <td class="num">{{ c.n_ratings }}{% if not c.sample_sufficient %} <span class="ar-badge is-warning" title="Moins de {{ ind.min_sample }} notes"><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>petit échantillon</span>{% endif %}</td>
+        <td class="num fw-semibold">{{ c.mean|floatformat:2 }}</td>
+        <td class="num">{% if c.ci95 %}{{ c.ci95.0|floatformat:1 }} – {{ c.ci95.1|floatformat:1 }}{% else %}—{% endif %}</td>
+        <td class="num">{{ c.positive_rate|pct }} %</td><td class="num">{{ c.neutral_rate|pct }} %</td><td class="num">{{ c.negative_rate|pct }} %</td></tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}{% include "partials/empty.html" with icon="bar-chart" title="Aucune donnée sur cette période" text="Élargissez la période ou revenez après de nouveaux avis." %}{% endif %}
+    {% if ind.limitations %}<details class="mt-3"><summary class="small fw-semibold">Limites à connaître</summary><ul class="small text-muted mt-2 mb-0">{% for l in ind.limitations %}<li>{{ l }}</li>{% endfor %}</ul></details>{% endif %}
+  </div>
+</section>

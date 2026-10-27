@@ -1,0 +1,35 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}{{ complaint.reference }}{% endblock %}
+{% block content %}
+<nav class="ar-breadcrumb" aria-label="Fil d’Ariane"><a href="{% url 'artec:complaint_list' %}">Réclamations</a> <span aria-hidden="true">/</span> {{ complaint.reference }}</nav>
+<header class="ar-page-header"><div><h1 class="d-flex flex-wrap align-items-center gap-3">{{ complaint.reference }} {% status_badge complaint.status complaint.get_status_display %}</h1><p class="ar-lead">{{ complaint.subject }}</p></div></header>
+{% include "partials/allegation.html" %}
+<div class="row g-3">
+  <div class="col-xl-7 ar-section-gap">
+    <section class="ar-card"><div class="ar-card-head"><h2>Faits allégués</h2></div><div class="ar-card-body">
+      <dl class="ar-detail-grid ar-kv"><div><dt>Plaignant</dt><dd>{{ complaint.complainant_operator }}</dd></div><div><dt>Opérateur visé</dt><dd>{{ complaint.target_operator }}</dd></div><div><dt>Déposée par</dt><dd>{{ complaint.filed_by.email|default:"—" }}</dd></div><div><dt>Déposée le</dt><dd>{{ complaint.created_at|date:"d/m/Y H:i" }}</dd></div>
+      {% if complaint.observed_from or complaint.observed_to %}<div><dt>Période observée</dt><dd>{{ complaint.observed_from|default:"?" }} → {{ complaint.observed_to|default:"?" }}</dd></div>{% endif %}</dl><pre class="ar-pre">{{ complaint.description }}</pre></div></section>
+    <section class="ar-card" aria-labelledby="pj"><div class="ar-card-head"><h2 id="pj">Pièces justificatives</h2></div><div class="ar-card-body">
+      {% if attachments %}<ul class="list-unstyled mb-0">{% for a in attachments %}<li class="mb-2"><i class="bi bi-paperclip me-1" aria-hidden="true"></i><a href="{% url 'artec:attachment_download' complaint.reference a.pk %}">{{ a.original_filename }}</a> <span class="small text-muted">({{ a.size|filesizeformat }}) · SHA-256 <code>{{ a.sha256|slice:":12" }}</code></span></li>{% endfor %}</ul>
+      {% else %}<p class="text-muted mb-0">Aucune pièce jointe.</p>{% endif %}</div></section>
+    <section class="ar-card" aria-labelledby="hist"><div class="ar-card-head"><h2 id="hist">Historique</h2><span class="small text-muted">les entrées « interne » ne sont pas visibles du plaignant</span></div><div class="ar-card-body">
+      <ol class="ar-timeline">{% for e in events %}<li class="{% if e.event_type == 'decision' %}is-decision{% elif not e.visible_to_complainant %}is-internal{% endif %}"><div class="fw-semibold">{{ e.get_event_type_display }}{% if e.to_status %} : {{ e.from_status|default:"—" }} → {{ e.to_status }}{% endif %}{% if not e.visible_to_complainant %} <span class="ar-badge is-neutral">interne</span>{% endif %}</div>{% if e.note %}<div>{{ e.note }}</div>{% endif %}<span class="meta">{{ e.actor.full_name|default:e.actor.email|default:"—" }} · <time datetime="{{ e.created_at|date:'c' }}">{{ e.created_at|date:"d/m/Y H:i" }}</time></span></li>{% endfor %}</ol></div></section>
+  </div>
+  <div class="col-xl-5 ar-section-gap">
+    <section class="ar-card" aria-labelledby="st"><div class="ar-card-head"><h2 id="st">Changer le statut</h2></div><div class="ar-card-body">
+      {% if complaint.status == 'closed' or complaint.status == 'rejected' %}<p class="text-muted mb-0"><i class="bi bi-lock me-1" aria-hidden="true"></i>Statut final : plus de transition possible.</p>{% else %}
+      <form method="post" action="{% url 'artec:complaint_status' complaint.reference %}">{% csrf_token %}
+        <div class="mb-3"><label class="form-label" for="{{ status_form.status.id_for_label }}">Nouveau statut</label>{{ status_form.status|bs }}<div class="form-text">Transitions autorisées : reçue → en examen · en examen → informations demandées / clôturée / rejetée.</div></div>
+        <div class="mb-3"><label class="form-label" for="{{ status_form.note.id_for_label }}">Note</label>{{ status_form.note|bs }}</div>
+        <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="visible_to_complainant" id="vis" checked><label class="form-check-label" for="vis">Visible du plaignant</label></div>
+        <button class="btn btn-primary" type="submit" data-loading-text="Mise à jour…" data-confirm="Appliquer ce changement de statut ? Il sera consigné dans l’historique et le journal d’audit.">Appliquer</button></form>{% endif %}</div></section>
+    <section class="ar-card" aria-labelledby="dec"><div class="ar-card-head"><h2 id="dec">Décisions ARTEC</h2></div><div class="ar-card-body">
+      <div class="ar-notice is-info" role="note"><i class="bi bi-info-circle" aria-hidden="true"></i><div>Une décision est <strong>humaine</strong> et fondée sur des <strong>preuves vérifiables</strong> ; elle n’est jamais déduite d’une alerte ML. Possible uniquement pour un dossier « en cours d’examen ».</div></div>
+      {% for d in decisions %}<div class="mb-3 pb-3 border-bottom"><span class="ar-badge is-neutral"><i class="bi bi-person-check-fill" aria-hidden="true"></i>{{ d.get_decision_type_display }}</span><div class="small text-muted mt-1">{{ d.decided_by.full_name|default:d.decided_by.email }} · {{ d.decided_at|date:"d/m/Y H:i" }}</div><pre class="ar-pre mt-2">{{ d.evidence_summary }}</pre></div>{% empty %}<p class="text-muted">Aucune décision enregistrée.</p>{% endfor %}
+      {% if complaint.status == 'under_review' %}<form method="post" action="{% url 'artec:complaint_decision' complaint.reference %}">{% csrf_token %}
+        <div class="mb-3"><label class="form-label" for="{{ decision_form.decision_type.id_for_label }}">Décision</label>{{ decision_form.decision_type|bs }}</div>
+        <div class="mb-3"><label class="form-label ar-required" for="{{ decision_form.evidence_summary.id_for_label }}">Résumé des preuves vérifiées</label>{{ decision_form.evidence_summary|bs }}<div class="form-text">20 caractères minimum. Citez les pièces et vérifications effectuées.</div></div>
+        <button class="btn btn-danger" type="submit" data-loading-text="Enregistrement…" data-confirm="Enregistrer cette décision réglementaire ? Elle sera consignée avec son auteur et sa justification, et ne pourra pas être modifiée.">Enregistrer la décision</button></form>{% endif %}</div></section>
+  </div>
+</div>
+{% endblock %}

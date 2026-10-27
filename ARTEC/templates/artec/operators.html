@@ -1,0 +1,7 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Opérateurs{% endblock %}
+{% block content %}{% operators_map as OM %}
+<header class="ar-page-header"><div><h1>Opérateurs</h1><p class="ar-lead">Opérateurs suivis, volume d’avis validés et dossiers de réclamation. La gestion des opérateurs relève de l’administration technique.</p></div></header>
+<section class="ar-card"><div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Opérateur</th><th scope="col">Statut</th><th scope="col" class="num">Avis acceptés</th><th scope="col" class="num">Réclamations déposées</th><th scope="col" class="num">Réclamations visant l’opérateur</th></tr></thead><tbody>
+{% for o in operators %}<tr><th scope="row"><span class="d-inline-flex align-items-center gap-2"><span class="ar-monogram s{{ OM|get_item:o.code|get_item:'index'|default:0 }}" style="width:30px;height:30px;font-size:.8rem" aria-hidden="true">{{ o.name|initials }}</span>{{ o.name }}</span></th><td>{% status_badge o.status o.get_status_display %}</td><td class="num">{{ o.n_accepted }}</td><td class="num">{{ o.n_complaints_filed }}</td><td class="num">{{ o.n_complaints_received }}</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

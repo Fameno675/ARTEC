@@ -1,0 +1,11 @@
+{% load artec_ui %}
+<div class="mb-3">
+  {% if field.field.widget.input_type == 'checkbox' %}
+    <div class="form-check">{{ field|bs }}<label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label></div>
+  {% else %}
+    <label for="{{ field.id_for_label }}" class="form-label{% if field.field.required %} ar-required{% endif %}">{{ field.label }}</label>
+    {{ field|bs }}
+  {% endif %}
+  {% if field.help_text %}<div id="{{ field.auto_id }}_help" class="form-text">{{ field.help_text }}</div>{% endif %}
+  {% if field.errors %}<div id="{{ field.auto_id }}_err" class="ar-field-error" role="alert"><i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>{% for e in field.errors %}{{ e }}{% if not forloop.last %} {% endif %}{% endfor %}</div>{% endif %}
+</div>

@@ -1,0 +1,63 @@
+{% extends "layouts/public.html" %}{% load static artec_ui %}
+{% block title %}{{ survey.title }}{% endblock %}
+{% block content %}
+<nav class="ar-breadcrumb" aria-label="Fil d’Ariane"><a href="{% url 'public:survey_list' %}">Sondages</a> <span aria-hidden="true">/</span> {{ survey.title }}</nav>
+<header class="ar-page-header"><div><h1>{{ survey.title }}</h1>{% if survey.description %}<p class="ar-lead">{{ survey.description }}</p>{% endif %}</div></header>
+
+<form method="post" novalidate data-feedback-form data-loading-text="Envoi en cours…" aria-describedby="form-help">
+  {% csrf_token %}
+  <div class="ar-form-sticky" role="region" aria-label="Progression du formulaire">
+    <div class="d-flex justify-content-between small fw-semibold mb-1"><span data-progress-text>Choisissez un opérateur · 0 critère noté</span></div>
+    <div class="ar-progress" data-progress-track role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progression du formulaire"><span data-progress-bar></span></div>
+  </div>
+
+  <p id="form-help" class="text-muted">Notez chaque critère de <strong>{{ scale.min }}</strong> (très mauvais) à <strong>{{ scale.max }}</strong> (excellent). Laissez vide un critère que vous ne pouvez pas évaluer : <strong>au moins un critère</strong> est requis.</p>
+
+  <div id="ar-client-errors" class="ar-notice is-danger" role="alert" tabindex="-1" hidden><i class="bi bi-x-octagon" aria-hidden="true"></i><div><strong>Veuillez corriger :</strong><ul class="mb-0"></ul></div></div>
+  {% if form.non_field_errors %}<div class="ar-notice is-danger" role="alert"><i class="bi bi-x-octagon" aria-hidden="true"></i><div>{% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}</div></div>{% endif %}
+
+  <section class="mb-4" aria-labelledby="sec-op">
+    <h2 id="sec-op" class="h5 ar-required">Opérateur évalué</h2>
+    {{ form.operator|bs }}
+    {% if form.operator.errors %}<div class="ar-field-error" role="alert"><i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>{{ form.operator.errors|join:" " }}</div>{% endif %}
+  </section>
+
+  {% regroup criteria_fields by criterion.category as groups %}
+  {% for g in groups %}
+  <section class="mb-4" aria-labelledby="sec-{{ g.grouper }}">
+    <h2 id="sec-{{ g.grouper }}" class="h5">{{ g.list.0.criterion.get_category_display }}</h2>
+    <div class="row g-3">
+      {% for item in g.list %}
+      <div class="col-12"><div class="ar-score" data-score-field>
+        <h3 class="ar-score-title fs-6" data-score-title>{{ item.criterion.label }}</h3>
+        {% if item.criterion.description %}<p class="ar-score-help">{{ item.criterion.description }}</p>{% endif %}
+        <div data-score-control><label class="visually-hidden" for="{{ item.field.id_for_label }}">{{ item.criterion.label }} (0 à 10)</label>{{ item.field|bs }}</div>
+        {% if item.field.errors %}<div class="ar-field-error" role="alert"><i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>{{ item.field.errors|join:" " }}</div>{% endif %}
+      </div></div>
+      {% endfor %}
+    </div>
+  </section>
+  {% empty %}
+  <div class="ar-card mb-4">{% include "partials/empty.html" with icon="ui-checks" title="Ce sondage n’a pas encore de critères" text="Il sera disponible dès que l’ARTEC l’aura configuré." %}</div>
+  {% endfor %}
+
+  <section class="mb-4" aria-labelledby="sec-comment">
+    <h2 id="sec-comment" class="h5">Commentaire <span class="text-muted fs-6 fw-normal">(facultatif)</span></h2>
+    <label class="visually-hidden" for="{{ form.comment.id_for_label }}">Commentaire</label>
+    {{ form.comment|bs }}
+    <div class="d-flex justify-content-between"><div class="form-text">N’indiquez aucune information personnelle (nom, téléphone, adresse…).</div><small class="text-muted" data-comment-count>0 / 500</small></div>
+    {% if form.comment.errors %}<div class="ar-field-error" role="alert">{{ form.comment.errors|join:" " }}</div>{% endif %}
+  </section>
+
+  {{ form.form_ts }}
+  <div class="hp-field" aria-hidden="true"><label for="{{ form.website.id_for_label }}">Ne pas remplir ce champ</label>{{ form.website }}</div>
+
+  {% include "partials/privacy_box.html" %}
+
+  <div class="d-flex flex-wrap gap-2 align-items-center">
+    <button class="btn btn-primary btn-lg" type="submit" data-loading-text="Envoi en cours…"><i class="bi bi-send me-2" aria-hidden="true"></i>Envoyer mon avis</button>
+    <a class="btn btn-link" href="{% url 'public:survey_list' %}">Annuler</a>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/feedback-form.js' %}"></script>{% endblock %}

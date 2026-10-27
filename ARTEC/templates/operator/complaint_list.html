@@ -1,0 +1,13 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Réclamations{% endblock %}
+{% block content %}
+<header class="ar-page-header"><div><h1>Mes réclamations</h1><p class="ar-lead">Suivi des réclamations déposées par {{ user.operator.name }}. Une réclamation est une allégation : elle n’est pas une preuve.</p></div>
+  <a class="btn btn-primary" href="{% url 'operator:complaint_create' %}"><i class="bi bi-flag me-1" aria-hidden="true"></i>Nouvelle réclamation</a></header>
+<form class="ar-filter-bar" method="get" data-no-loading><div class="ar-filter"><label for="st">Statut</label><select id="st" name="status" class="form-select"><option value="">Tous les statuts</option>{% for v, l in statuses %}<option value="{{ v }}" {% if filters.status == v %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div><div><button class="btn btn-primary">Filtrer</button> {% if filters.status %}<a class="btn btn-link" href="{% url 'operator:complaint_list' %}">Réinitialiser</a>{% endif %}</div></form>
+<section class="ar-card">
+{% if complaints %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Référence</th><th scope="col">Opérateur concerné</th><th scope="col">Objet</th><th scope="col">Statut</th><th scope="col">Déposée le</th></tr></thead><tbody>
+  {% for c in complaints %}<tr><td><a class="fw-semibold" href="{% url 'operator:complaint_detail' c.reference %}">{{ c.reference }}</a></td><td>{{ c.target_operator }}</td><td>{{ c.subject|truncatechars:70 }}</td><td>{% status_badge c.status c.get_status_display %}</td><td>{{ c.created_at|date:"d/m/Y" }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="ar-card-body">{% url 'operator:complaint_create' as u %}{% include "partials/empty.html" with icon="flag" title="Aucune réclamation" text="Vous pouvez signaler un comportement présumé anormal d’un concurrent. L’ARTEC examinera votre dossier." cta_url=u cta_label="Déposer une réclamation" %}</div>{% endif %}
+</section>
+{% include "partials/pagination.html" with page_obj=complaints %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "layouts/public.html" %}
+{% block title %}Merci{% endblock %}
+{% block content %}
+<div class="ar-error-page" role="status">
+  <i class="bi bi-check-circle-fill ar-thanks-icon" aria-hidden="true"></i>
+  <h1 class="mt-3">Merci pour votre avis</h1>
+  <p class="text-muted mx-auto" style="max-width:52ch">Votre réponse au sondage « {{ survey.title }} » a bien été enregistrée. Elle sera analysée avec les autres avis, jamais seule.</p>
+  <div class="d-flex flex-wrap gap-2 justify-content-center mt-3">
+    <a class="btn btn-primary" href="{% url 'public:survey_detail' survey.slug %}"><i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Évaluer un autre opérateur</a>
+    <a class="btn btn-outline-primary" href="{% url 'public:results' %}">Voir les résultats</a>
+    <a class="btn btn-link" href="{% url 'public:home' %}">Retour à l’accueil</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "layouts/dashboard.html" %}{% load artec_ui %}
+{% block title %}Sondages{% endblock %}
+{% block content %}
+<header class="ar-page-header"><div><h1>Sondages</h1><p class="ar-lead">Formulaires publics : période de disponibilité, critères et statut. Échelle fixe de 0 à 10.</p></div><a class="btn btn-primary" href="{% url 'artec:survey_create' %}"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nouveau sondage</a></header>
+<section class="ar-card">
+{% if surveys %}<div class="ar-table-wrap"><table class="ar-table"><thead><tr><th scope="col">Titre</th><th scope="col">Disponibilité</th><th scope="col">Statut</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead><tbody>
+{% for s in surveys %}<tr><th scope="row" class="fw-semibold">{{ s.title }}<div class="small text-muted fw-normal">/{{ s.slug }}/</div></th><td class="small">{{ s.starts_at|date:"d/m/Y H:i"|default:"—" }} → {{ s.ends_at|date:"d/m/Y H:i"|default:"sans fin" }}</td><td>{% if s.is_active %}<span class="ar-badge is-success"><i class="bi bi-check-circle-fill" aria-hidden="true"></i>Actif</span>{% else %}<span class="ar-badge is-neutral"><i class="bi bi-pause-circle" aria-hidden="true"></i>Inactif</span>{% endif %}</td>
+<td class="text-nowrap"><a class="btn btn-sm btn-outline-primary" href="{% url 'artec:survey_edit' s.pk %}">Modifier</a> <a class="btn btn-sm btn-link" href="{% url 'public:survey_detail' s.slug %}">Voir</a></td></tr>{% endfor %}</tbody></table></div>
+{% else %}<div class="ar-card-body">{% url 'artec:survey_create' as u %}{% include "partials/empty.html" with icon="ui-checks" title="Aucun sondage" text="Créez un premier formulaire pour collecter des avis." cta_url=u cta_label="Créer un sondage" %}</div>{% endif %}</section>
+{% endblock %}

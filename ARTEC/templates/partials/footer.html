@@ -1,0 +1,17 @@
+{% load static %}
+<footer class="ar-footer">
+  <div class="container py-4">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <p class="fw-bold mb-1 text-white fs-5">ARTEC</p>
+        <p class="mb-0">Plateforme de collecte, de contrôle et d’analyse de la qualité des services de télécommunications à Madagascar.</p>
+      </div>
+      <div class="col-6 col-md-3"><p class="fw-semibold text-white mb-2">Explorer</p>
+        <ul class="list-unstyled mb-0"><li><a href="{% url 'public:survey_list' %}">Donner mon avis</a></li><li><a href="{% url 'public:results' %}">Résultats</a></li><li><a href="{% url 'public:methodology' %}">Méthodologie et données</a></li></ul></div>
+      <div class="col-6 col-md-3"><p class="fw-semibold text-white mb-2">Accès</p>
+        <ul class="list-unstyled mb-0"><li><a href="{% url 'accounts:login' %}">Espace opérateur / ARTEC</a></li></ul></div>
+    </div>
+    <hr class="border-secondary">
+    <small>Les couleurs et monogrammes utilisés pour distinguer les opérateurs sont propres à cette interface ; ils n’indiquent aucune affiliation avec les opérateurs.</small>
+  </div>
+</footer>

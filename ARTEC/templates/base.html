@@ -1,0 +1,26 @@
+{% load static %}<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1f3a">
+  <title>{% block title %}ARTEC{% endblock %} — ARTEC</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/artec-base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/artec-components.css' %}">
+  {% block page_css %}{% endblock %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="ar-skip-link" href="#contenu">Aller au contenu principal</a>
+  <div class="ar-loading-bar" aria-hidden="true"></div>
+  <div class="ar-offline" role="alert">Vous semblez hors connexion. Vos données ne seront pas envoyées tant que la connexion n’est pas rétablie.</div>
+  {% block shell %}{% endblock %}
+  {% include "partials/confirm_modal.html" %}
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'js/core.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

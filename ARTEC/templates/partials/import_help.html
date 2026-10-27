@@ -1,0 +1,11 @@
+<section class="ar-card is-flat" aria-labelledby="fmt"><div class="ar-card-head"><h2 id="fmt">Format attendu (feedback_import_v1)</h2></div><div class="ar-card-body small">
+  <ul class="mb-3">
+    <li><code>collected_at</code> (obligatoire) : date <code>AAAA-MM-JJ</code>, ni future ni antérieure à 5 ans.</li>
+    {% if is_artec %}<li><code>operator_code</code> (obligatoire) : <code>orange</code>, <code>yas</code> ou <code>airtel</code>.</li>{% else %}<li><code>operator_code</code> (facultatif) : vide ou égal à votre opérateur.</li>{% endif %}
+    <li><code>score_…</code> : au moins une note par ligne, <strong>entier de 0 à 10</strong> ou vide.</li>
+    <li><code>external_id</code>, <code>comment</code> (500 caractères max) : facultatifs.</li>
+  </ul>
+  <p class="mb-2 fw-semibold">Colonnes de notes</p>
+  <p class="mb-3 text-muted">mobile_data_speed, mobile_data_stability, mobile_data_availability, call_audio_quality, call_success_stability, sms_reliability, pricing_value, credit_purchase_ease, mobile_money_reliability, customer_service (préfixées par <code>score_</code>).</p>
+  <div class="ar-notice is-info mb-0" role="note"><i class="bi bi-info-circle" aria-hidden="true"></i><div>Les lignes douteuses (doublons, notes toutes à 0 ou à 10, date ancienne) sont rejetées ou placées « à examiner ». Si plus de 20 % des lignes sont rejetées, <strong>tout le fichier est refusé</strong>. Aucun contenu du fichier n’est exécuté.</div></div>
+</div></section>
