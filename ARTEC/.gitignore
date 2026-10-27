@@ -14,3 +14,9 @@ ml_engine/artifacts/*
 resultat.json
 .idea/
 .vscode/
+
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
